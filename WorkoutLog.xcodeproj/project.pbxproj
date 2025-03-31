@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BF8AE3954617081095A7204C /* Pods_WorkoutLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */; };
 		C0CD83002D981DE4002470D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82F62D981DE4002470D9 /* AppDelegate.swift */; };
 		C0CD83012D981DE4002470D9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82FD2D981DE4002470D9 /* SceneDelegate.swift */; };
 		C0CD83022D981DE4002470D9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82FE2D981DE4002470D9 /* ViewController.swift */; };
@@ -23,9 +24,13 @@
 		C0CD83172D982F1C002470D9 /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD83162D982F0F002470D9 /* StatisticsViewModel.swift */; };
 		C0CD83192D982F35002470D9 /* ActivityCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD83182D982F2D002470D9 /* ActivityCollectionViewCell.swift */; };
 		C0CD831B2D982F51002470D9 /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD831A2D982F46002470D9 /* StatisticsViewController.swift */; };
+		C0CD83212D9ADA3A002470D9 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD83202D9ADA2B002470D9 /* CircularProgressView.swift */; };
+		C0DCEF1B2D9ADDC300E7395F /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DCEF1A2D9ADDBF00E7395F /* TabBarController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1E442870D3627D10057D5624 /* Pods-WorkoutLog.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WorkoutLog.debug.xcconfig"; path = "Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog.debug.xcconfig"; sourceTree = "<group>"; };
+		5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WorkoutLog.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0CD82DE2D981DDD002470D9 /* WorkoutLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorkoutLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0CD82F62D981DE4002470D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C0CD82F72D981DE4002470D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -44,6 +49,9 @@
 		C0CD83162D982F0F002470D9 /* StatisticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewModel.swift; sourceTree = "<group>"; };
 		C0CD83182D982F2D002470D9 /* ActivityCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityCollectionViewCell.swift; sourceTree = "<group>"; };
 		C0CD831A2D982F46002470D9 /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
+		C0CD83202D9ADA2B002470D9 /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
+		C0DCEF1A2D9ADDBF00E7395F /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		E2EB9DA0062C1A4D47538DFD /* Pods-WorkoutLog.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WorkoutLog.release.xcconfig"; path = "Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,17 +59,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF8AE3954617081095A7204C /* Pods_WorkoutLog.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		19C801BD5687A6C1DFDB2B7E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1E442870D3627D10057D5624 /* Pods-WorkoutLog.debug.xcconfig */,
+				E2EB9DA0062C1A4D47538DFD /* Pods-WorkoutLog.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		43AD3FCFD16FEEB44A06C354 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C0CD82D52D981DDD002470D9 = {
 			isa = PBXGroup;
 			children = (
 				C0CD82FF2D981DE4002470D9 /* WorkoutLog */,
 				C0CD82DF2D981DDD002470D9 /* Products */,
+				19C801BD5687A6C1DFDB2B7E /* Pods */,
+				43AD3FCFD16FEEB44A06C354 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -76,6 +104,7 @@
 		C0CD82FF2D981DE4002470D9 /* WorkoutLog */ = {
 			isa = PBXGroup;
 			children = (
+				C0CD831F2D9ADA24002470D9 /* Components */,
 				C0CD831E2D9ACF4A002470D9 /* Model */,
 				C0CD831C2D9ACF31002470D9 /* Feature */,
 				C0CD831A2D982F46002470D9 /* StatisticsViewController.swift */,
@@ -105,6 +134,7 @@
 		C0CD831C2D9ACF31002470D9 /* Feature */ = {
 			isa = PBXGroup;
 			children = (
+				C0DCEF192D9ADDB600E7395F /* Tab */,
 				C0CD831D2D9ACF3B002470D9 /* Home */,
 			);
 			path = Feature;
@@ -129,6 +159,22 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		C0CD831F2D9ADA24002470D9 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				C0CD83202D9ADA2B002470D9 /* CircularProgressView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		C0DCEF192D9ADDB600E7395F /* Tab */ = {
+			isa = PBXGroup;
+			children = (
+				C0DCEF1A2D9ADDBF00E7395F /* TabBarController.swift */,
+			);
+			path = Tab;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -136,17 +182,17 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C0CD82F12D981DDF002470D9 /* Build configuration list for PBXNativeTarget "WorkoutLog" */;
 			buildPhases = (
+				C19A25598E4F3A7EEB43FE32 /* [CP] Check Pods Manifest.lock */,
 				C0CD82DA2D981DDD002470D9 /* Sources */,
 				C0CD82DB2D981DDD002470D9 /* Frameworks */,
 				C0CD82DC2D981DDD002470D9 /* Resources */,
+				86981C9E7E22948873D2D350 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = WorkoutLog;
-			packageProductDependencies = (
-			);
 			productName = WorkoutLog;
 			productReference = C0CD82DE2D981DDD002470D9 /* WorkoutLog.app */;
 			productType = "com.apple.product-type.application";
@@ -198,6 +244,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		86981C9E7E22948873D2D350 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C19A25598E4F3A7EEB43FE32 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WorkoutLog-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		C0CD82DA2D981DDD002470D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -206,6 +294,7 @@
 				C0CD83002D981DE4002470D9 /* AppDelegate.swift in Sources */,
 				C0CD83012D981DE4002470D9 /* SceneDelegate.swift in Sources */,
 				C0CD83192D982F35002470D9 /* ActivityCollectionViewCell.swift in Sources */,
+				C0DCEF1B2D9ADDC300E7395F /* TabBarController.swift in Sources */,
 				C0CD83022D981DE4002470D9 /* ViewController.swift in Sources */,
 				C0CD83112D982ED3002470D9 /* ActivityViewModel.swift in Sources */,
 				C0CD83172D982F1C002470D9 /* StatisticsViewModel.swift in Sources */,
@@ -213,6 +302,7 @@
 				C0CD830F2D982EB5002470D9 /* MyActivityViewController.swift in Sources */,
 				C0CD83132D982EE3002470D9 /* Activity.swift in Sources */,
 				C0CD83082D981E82002470D9 /* Memo.swift in Sources */,
+				C0CD83212D9ADA3A002470D9 /* CircularProgressView.swift in Sources */,
 				C0CD83152D982EFC002470D9 /* Statistics.swift in Sources */,
 				C0CD830A2D981EA2002470D9 /* MemoManager.swift in Sources */,
 				C0CD831B2D982F51002470D9 /* StatisticsViewController.swift in Sources */,
@@ -243,12 +333,14 @@
 /* Begin XCBuildConfiguration section */
 		C0CD82F22D981DDF002470D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E442870D3627D10057D5624 /* Pods-WorkoutLog.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6NDM2TJS37;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutLog/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -271,12 +363,14 @@
 		};
 		C0CD82F32D981DDF002470D9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E2EB9DA0062C1A4D47538DFD /* Pods-WorkoutLog.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6NDM2TJS37;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutLog/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
