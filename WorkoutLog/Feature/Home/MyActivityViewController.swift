@@ -21,7 +21,7 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
         collectionView.backgroundColor = .clear
         return collectionView
     }()
-
+    
     private let data: [(String, String, UIImage?)] = [
         ("Steps", "4255/6000", UIImage(systemName: "figure.walk")),
         ("Sleep", "4.58 hr", UIImage(systemName: "bed.double.fill")),

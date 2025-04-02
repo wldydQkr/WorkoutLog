@@ -39,17 +39,22 @@ class ActivityCollectionViewCell: UICollectionViewCell {
         contentView.layer.shadowOpacity = 0.1
         contentView.layer.shadowOffset = CGSize(width: 2, height: 2)
 
-        let stackView = UIStackView(arrangedSubviews: [iconImageView, titleLabel, valueLabel])
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        stackView.spacing = 5
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        let horizontalStackView = UIStackView(arrangedSubviews: [iconImageView, titleLabel])
+        horizontalStackView.axis = .horizontal
+        horizontalStackView.alignment = .center
+        horizontalStackView.spacing = 5
 
-        contentView.addSubview(stackView)
+        let verticalStackView = UIStackView(arrangedSubviews: [horizontalStackView, valueLabel])
+        verticalStackView.axis = .vertical
+        verticalStackView.alignment = .center
+        verticalStackView.spacing = 5
+        verticalStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        contentView.addSubview(verticalStackView)
 
         NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            verticalStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            verticalStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
 
