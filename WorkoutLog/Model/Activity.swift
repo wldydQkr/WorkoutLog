@@ -9,7 +9,7 @@ import Foundation
 
 struct Activity {
     let title: String
-    let value: String
+    var value: String
     let goal: String?
     let icon: String
 }

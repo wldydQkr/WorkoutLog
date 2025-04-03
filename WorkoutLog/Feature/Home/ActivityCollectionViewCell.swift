@@ -31,6 +31,13 @@ class ActivityCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
+    private let goalLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.textColor = .darkGray
+        return label
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.backgroundColor = .white
@@ -44,7 +51,7 @@ class ActivityCollectionViewCell: UICollectionViewCell {
         horizontalStackView.alignment = .center
         horizontalStackView.spacing = 5
 
-        let verticalStackView = UIStackView(arrangedSubviews: [horizontalStackView, valueLabel])
+        let verticalStackView = UIStackView(arrangedSubviews: [horizontalStackView, valueLabel, goalLabel])
         verticalStackView.axis = .vertical
         verticalStackView.alignment = .center
         verticalStackView.spacing = 5
@@ -62,9 +69,16 @@ class ActivityCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with data: (String, String, UIImage?)) {
-        titleLabel.text = data.0
-        valueLabel.text = data.1
-        iconImageView.image = data.2
+    func configure(with activity: Activity) {
+        titleLabel.text = activity.title
+        valueLabel.text = activity.value
+        iconImageView.image = UIImage(named: activity.icon)
+
+        if let goal = activity.goal {
+            goalLabel.text = "Goal: \(goal)"
+            goalLabel.isHidden = false
+        } else {
+            goalLabel.isHidden = true
+        }
     }
 }
