@@ -36,6 +36,8 @@ final class CustomTabBarController: UITabBarController {
         let button = UIButton(type: .custom)
         button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.backgroundColor = .white
+        button.tintColor = .black
+//        button.titleLabel?.font = .systemFont(ofSize: 40, weight: .bold)
         button.layer.cornerRadius = 35
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOpacity = 0.2
@@ -57,7 +59,7 @@ final class CustomTabBarController: UITabBarController {
         let activityVC = UINavigationController(rootViewController: MyActivityViewController())
         activityVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "heart.fill"), tag: 1)
 
-        let placeholderVC = UIViewController()  // 플로팅 버튼 자리
+        let placeholderVC = UIViewController()
         placeholderVC.tabBarItem = UITabBarItem(title: nil, image: nil, tag: 2)
 
         let locationVC = UINavigationController(rootViewController: MyActivityViewController())
@@ -87,6 +89,6 @@ final class CustomTabBarController: UITabBarController {
     }
 
     @objc private func floatingButtonTapped() {
-        print("플로팅 버튼 클릭됨") // 원하는 동작을 추가
+        print("플로팅 버튼 클릭됨")
     }
 }
