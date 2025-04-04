@@ -8,6 +8,7 @@ target 'WorkoutLog' do
   pod "SnapKit"
   pod "Then"
   pod "Alamofire"
+  pod "Charts"
 
   # Pods for WorkoutLog
 
