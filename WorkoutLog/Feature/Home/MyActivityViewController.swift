@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class MyActivityViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class MyActivityViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
@@ -64,5 +64,17 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
         let availableWidth = collectionView.frame.width - totalSpacing - 20
         let itemWidth = availableWidth / itemsPerRow
         return CGSize(width: itemWidth, height: itemWidth * 1.2)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedActivity = viewModel.activities[indexPath.row]
+
+        if selectedActivity.title == "걸음 수" {
+            let detailVC = StepsDetailViewController(
+                steps: Int(selectedActivity.value) ?? 0,
+                goal: Int(selectedActivity.goal ?? "0")
+            )
+            navigationController?.pushViewController(detailVC, animated: true)
+        }
     }
 }
