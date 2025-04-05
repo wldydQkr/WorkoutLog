@@ -20,6 +20,7 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
         $0.dataSource = self
         $0.delegate = self
         $0.register(ActivityCollectionViewCell.self, forCellWithReuseIdentifier: ActivityCollectionViewCell.identifier)
+        $0.register(RoutineCollectionViewCell.self, forCellWithReuseIdentifier: RoutineCollectionViewCell.identifier)
     }
 
     private let viewModel = ActivityViewModel()
@@ -27,14 +28,39 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(white: 0.95, alpha: 1)
-        navigationController?.navigationBar.isHidden = true
+        navigationItem.hidesBackButton = true
+        navigationController?.setNavigationBarHidden(true, animated: false)
+
+        let titleLabel = UILabel().then {
+            $0.text = "WorkoutLog"
+            $0.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+            $0.textColor = .black
+        }
+
+        let profileImageView = UIImageView().then {
+            $0.image = UIImage(systemName: "person.circle") // Replace with actual image later
+            $0.contentMode = .scaleAspectFill
+            $0.clipsToBounds = true
+            $0.layer.cornerRadius = 15
+            $0.tintColor = .black
+            $0.snp.makeConstraints {
+                $0.width.height.equalTo(30)
+            }
+        }
+
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, profileImageView]).then {
+            $0.axis = .horizontal
+            $0.alignment = .center
+            $0.spacing = 8
+        }
+
+        navigationItem.titleView = stackView
 
         view.addSubview(collectionView)
 
         collectionView.snp.makeConstraints {
-            $0.top.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(10)
-            $0.bottom.equalToSuperview().offset(-80)
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(10)
+            $0.leading.trailing.bottom.equalToSuperview()
         }
 
         viewModel.onDataUpdated = { [weak self] in
@@ -49,25 +75,33 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivityCollectionViewCell.identifier, for: indexPath) as! ActivityCollectionViewCell
         let activity = viewModel.activities[indexPath.row]
-        
-        if activity.title == "걸음 수" {
+
+        if activity.title == "루틴" {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RoutineCollectionViewCell.identifier, for: indexPath) as! RoutineCollectionViewCell
             cell.configure(with: activity)
+            return cell
         } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivityCollectionViewCell.identifier, for: indexPath) as! ActivityCollectionViewCell
             cell.configure(with: activity)
+            return cell
         }
-        
-        return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let itemsPerRow: CGFloat = 2
-        let spacing: CGFloat = 10
-        let totalSpacing = (itemsPerRow - 1) * spacing
-        let availableWidth = collectionView.frame.width - totalSpacing - 20
-        let itemWidth = availableWidth / itemsPerRow
-        return CGSize(width: itemWidth, height: itemWidth * 1.2)
+        let activity = viewModel.activities[indexPath.row]
+
+        if activity.title == "루틴" {
+            let width = collectionView.frame.width - 20 // 10pt inset on both sides
+            return CGSize(width: width, height: 150)
+        } else {
+            let itemsPerRow: CGFloat = 2
+            let spacing: CGFloat = 10
+            let totalSpacing = (itemsPerRow - 1) * spacing
+            let availableWidth = collectionView.frame.width - totalSpacing - 20
+            let itemWidth = availableWidth / itemsPerRow
+            return CGSize(width: itemWidth, height: itemWidth * 1.2)
+        }
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

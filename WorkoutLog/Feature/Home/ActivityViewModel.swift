@@ -51,20 +51,22 @@ class ActivityViewModel {
             group.leave()
         }
 
-        group.enter()
-        fetchWaterIntake { water, goal in
-            updatedActivities["Water"] = Activity(title: "물 섭취량", value: water, goal: goal, icon: UIImage(systemName: "drop.fill"))
-            group.leave()
-        }
+//        group.enter()
+//        fetchWaterIntake { water, goal in
+//            updatedActivities["Water"] = Activity(title: "물 섭취량", value: water, goal: goal, icon: UIImage(systemName: "drop.fill"))
+//            group.leave()
+//        }
         
         group.enter()
         fetchSleepAnalysis { sleepHours in
             updatedActivities["Sleep"] = Activity(title: "수면", value: sleepHours, goal: 8.0, icon: UIImage(systemName: "bed.double.fill"))
             group.leave()
         }
+        
+        updatedActivities["Routine"] = Activity(title: "루틴", value: 0, goal: nil, icon: UIImage(systemName: "list.bullet.rectangle"))
 
         group.notify(queue: .main) {
-            let orderedKeys = ["Steps", "Heart Rate", "Calories", "Water", "Sleep"]
+            let orderedKeys = ["Steps", "Heart Rate", "Calories", "Water", "Sleep", "Routine"]
             self.activities = orderedKeys.compactMap { updatedActivities[$0] }
             self.onDataUpdated?()
         }
