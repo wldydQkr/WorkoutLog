@@ -17,7 +17,8 @@ class ActivityViewModel {
             HKQuantityType.quantityType(forIdentifier: .appleExerciseTime)!,
             HKQuantityType.quantityType(forIdentifier: .dietaryWater)!,
             HKQuantityType.quantityType(forIdentifier: .heartRate)!,
-            HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
+            HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!,
+            HKCategoryType.categoryType(forIdentifier: .sleepAnalysis)!
         ]
 
         healthStore.requestAuthorization(toShare: [], read: readTypes) { success, error in
@@ -55,9 +56,15 @@ class ActivityViewModel {
             updatedActivities["Water"] = Activity(title: "물 섭취량", value: water, goal: goal, icon: UIImage(systemName: "drop.fill"))
             group.leave()
         }
+        
+        group.enter()
+        fetchSleepAnalysis { sleepHours in
+            updatedActivities["Sleep"] = Activity(title: "수면", value: sleepHours, goal: 8.0, icon: UIImage(systemName: "bed.double.fill"))
+            group.leave()
+        }
 
         group.notify(queue: .main) {
-            let orderedKeys = ["Steps", "Heart Rate", "Calories", "Water"]
+            let orderedKeys = ["Steps", "Heart Rate", "Calories", "Water", "Sleep"]
             self.activities = orderedKeys.compactMap { updatedActivities[$0] }
             self.onDataUpdated?()
         }
@@ -112,6 +119,29 @@ class ActivityViewModel {
             
             let goal = 2.0
             completion(water, goal)
+        }
+
+        healthStore.execute(query)
+    }
+
+    private func fetchSleepAnalysis(completion: @escaping (Double) -> Void) {
+        let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
+        let startDate = Calendar.current.startOfDay(for: Date())
+        let endDate = Date()
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+
+        let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+            var totalSleep = 0.0
+
+            for sample in samples as? [HKCategorySample] ?? [] {
+                if sample.value == HKCategoryValueSleepAnalysis.asleep.rawValue {
+                    let sleepTime = sample.endDate.timeIntervalSince(sample.startDate)
+                    totalSleep += sleepTime
+                }
+            }
+
+            let hours = totalSleep / 3600
+            completion(hours)
         }
 
         healthStore.execute(query)

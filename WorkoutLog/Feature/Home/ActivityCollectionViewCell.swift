@@ -99,7 +99,8 @@ class ActivityCollectionViewCell: UICollectionViewCell {
 
         NSLayoutConstraint.activate([
             mainStack.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            mainStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            mainStack.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
             progressRing.widthAnchor.constraint(equalToConstant: 80),
             progressRing.heightAnchor.constraint(equalToConstant: 80)
         ])
@@ -132,8 +133,8 @@ class ActivityCollectionViewCell: UICollectionViewCell {
 
         case "수면":
             progressRing.isHidden = true
-            goalLabel.isHidden = true
             valueLabel.text = String(format: "%.1f", value)
+            goalLabel.text = "목표 수면 시간 \(Int(goal))"
             unitLabel.text = "시간"
 
         case "심박수":
@@ -148,7 +149,7 @@ class ActivityCollectionViewCell: UICollectionViewCell {
             goalLabel.text = "/\(Int(goal))"
             valueLabel.text = "\(Int(value))"
             unitLabel.text = "Kcal"
-
+            
         default:
             progressRing.isHidden = true
             goalLabel.isHidden = true
