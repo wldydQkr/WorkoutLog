@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import UIKit
 
 struct Activity {
     let title: String
-    var value: String
-    let goal: String?
-    let icon: String
+    var value: Double
+    let goal: Double?
+    let icon: UIImage?
 }

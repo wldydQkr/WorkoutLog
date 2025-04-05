@@ -1,5 +1,6 @@
 import Foundation
 import HealthKit
+import UIKit
 
 class ActivityViewModel {
     private let healthStore = HKHealthStore()
@@ -33,25 +34,25 @@ class ActivityViewModel {
 
         group.enter()
         fetchStepCount { steps, goal in
-            updatedActivities["Steps"] = Activity(title: "걸음 수", value: "\(Int(steps))", goal: goal != nil ? "\(Int(goal!))" : nil, icon: "steps_icon")
+            updatedActivities["Steps"] = Activity(title: "걸음 수", value: steps, goal: goal, icon: UIImage(systemName: "figure.walk"))
             group.leave()
         }
 
         group.enter()
         fetchHeartRate { heartRate in
-            updatedActivities["Heart Rate"] = Activity(title: "심박수", value: "\(Int(heartRate)) bpm", goal: nil, icon: "heart_icon")
+            updatedActivities["Heart Rate"] = Activity(title: "심박수", value: heartRate, goal: nil, icon: UIImage(systemName: "heart.fill"))
             group.leave()
         }
 
         group.enter()
         fetchActiveCalories { calories, goal in
-            updatedActivities["Calories"] = Activity(title: "칼로리", value: "\(Int(calories)) kcal", goal: goal != nil ? "\(Int(goal!)) kcal" : nil, icon: "calories_icon")
+            updatedActivities["Calories"] = Activity(title: "칼로리", value: calories, goal: goal, icon: UIImage(systemName: "flame.fill"))
             group.leave()
         }
 
         group.enter()
         fetchWaterIntake { water, goal in
-            updatedActivities["Water"] = Activity(title: "물 섭취량", value: "\(water)리터", goal: "\(goal ?? 0)리터", icon: "water_icon")
+            updatedActivities["Water"] = Activity(title: "물 섭취량", value: water, goal: goal, icon: UIImage(systemName: "drop.fill"))
             group.leave()
         }
 

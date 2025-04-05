@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import UICircularProgressRing
 
 class ActivityCollectionViewCell: UICollectionViewCell {
     static let identifier = "ActivityCollectionViewCell"
-
+    
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.tintColor = .black
@@ -24,17 +25,38 @@ class ActivityCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
-    private let valueLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 18)
-        label.textColor = .black
-        return label
+    // 원형 프로그레스 뷰
+    private let progressRing: UICircularProgressRing = {
+        let ring = UICircularProgressRing()
+        ring.style = .ontop
+        ring.innerRingColor = .black
+        ring.outerRingColor = UIColor.lightGray.withAlphaComponent(0.3)
+        ring.startAngle = -90
+        ring.font = UIFont.boldSystemFont(ofSize: 18)
+        return ring
     }()
 
     private let goalLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.systemFont(ofSize: 12)
         label.textColor = .darkGray
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let valueLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 20)
+        label.textColor = .black
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let unitLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 12)
+        label.textColor = .darkGray
+        label.textAlignment = .center
         return label
     }()
 
@@ -45,23 +67,41 @@ class ActivityCollectionViewCell: UICollectionViewCell {
         contentView.layer.shadowColor = UIColor.black.cgColor
         contentView.layer.shadowOpacity = 0.1
         contentView.layer.shadowOffset = CGSize(width: 2, height: 2)
+        
+        contentView.addSubview(iconImageView)
+        contentView.addSubview(titleLabel)
 
-        let horizontalStackView = UIStackView(arrangedSubviews: [iconImageView, titleLabel])
-        horizontalStackView.axis = .horizontal
-        horizontalStackView.alignment = .center
-        horizontalStackView.spacing = 5
-
-        let verticalStackView = UIStackView(arrangedSubviews: [horizontalStackView, valueLabel, goalLabel])
-        verticalStackView.axis = .vertical
-        verticalStackView.alignment = .center
-        verticalStackView.spacing = 5
-        verticalStackView.translatesAutoresizingMaskIntoConstraints = false
-
-        contentView.addSubview(verticalStackView)
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            verticalStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            verticalStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            iconImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            iconImageView.widthAnchor.constraint(equalToConstant: 20),
+            iconImageView.heightAnchor.constraint(equalToConstant: 20),
+
+            titleLabel.centerYAnchor.constraint(equalTo: iconImageView.centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 8)
+        ])
+
+        let valueStack = UIStackView(arrangedSubviews: [valueLabel, unitLabel])
+        valueStack.axis = .vertical
+        valueStack.alignment = .center
+        valueStack.spacing = 2
+
+        let mainStack = UIStackView(arrangedSubviews: [progressRing, valueStack, goalLabel])
+        mainStack.axis = .vertical
+        mainStack.alignment = .center
+        mainStack.spacing = 10
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+
+        contentView.addSubview(mainStack)
+
+        NSLayoutConstraint.activate([
+            mainStack.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            mainStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            progressRing.widthAnchor.constraint(equalToConstant: 80),
+            progressRing.heightAnchor.constraint(equalToConstant: 80)
         ])
     }
 
@@ -71,14 +111,49 @@ class ActivityCollectionViewCell: UICollectionViewCell {
 
     func configure(with activity: Activity) {
         titleLabel.text = activity.title
-        valueLabel.text = activity.value
-        iconImageView.image = UIImage(named: activity.icon)
+        iconImageView.image = activity.icon
+        
+        progressRing.isHidden = false
+        goalLabel.isHidden = false
+        valueLabel.isHidden = false
+        unitLabel.isHidden = false
 
-        if let goal = activity.goal {
-            goalLabel.text = "Goal: \(goal)"
-            goalLabel.isHidden = false
-        } else {
+        let value = activity.value
+        let goal = activity.goal ?? 1.0
+
+        switch activity.title {
+        case "걸음 수":
+            let percentage = min((value / goal) * 100, 100)
+            progressRing.maxValue = 100
+            progressRing.startProgress(to: CGFloat(percentage), duration: 1.0)
+            goalLabel.text = "\(Int(goal))"
+            valueLabel.text = "\(Int(value))"
+//            unitLabel.text = "걸음"
+
+        case "수면":
+            progressRing.isHidden = true
             goalLabel.isHidden = true
+            valueLabel.text = String(format: "%.1f", value)
+            unitLabel.text = "시간"
+
+        case "심박수":
+            progressRing.isHidden = true
+            goalLabel.isHidden = true
+            valueLabel.text = "\(Int(value))"
+            unitLabel.text = "bpm"
+
+        case "칼로리":
+            progressRing.maxValue = CGFloat(goal)
+            progressRing.startProgress(to: CGFloat(value), duration: 1.0)
+            goalLabel.text = "/\(Int(goal))"
+            valueLabel.text = "\(Int(value))"
+            unitLabel.text = "Kcal"
+
+        default:
+            progressRing.isHidden = true
+            goalLabel.isHidden = true
+            valueLabel.text = "\(value)"
+            unitLabel.text = ""
         }
     }
 }

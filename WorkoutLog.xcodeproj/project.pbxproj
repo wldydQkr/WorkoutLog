@@ -10,6 +10,7 @@
 		BF8AE3954617081095A7204C /* Pods_WorkoutLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */; };
 		C06AC81C2D9ED552005960FF /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC81B2D9ED54D005960FF /* HealthManager.swift */; };
 		C06AC81E2DA01349005960FF /* StepDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC81D2DA01340005960FF /* StepDetailViewController.swift */; };
+		C06AC8212DA0CD13005960FF /* StepViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC8202DA0CD07005960FF /* StepViewModel.swift */; };
 		C0CD83002D981DE4002470D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82F62D981DE4002470D9 /* AppDelegate.swift */; };
 		C0CD83012D981DE4002470D9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82FD2D981DE4002470D9 /* SceneDelegate.swift */; };
 		C0CD83022D981DE4002470D9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82FE2D981DE4002470D9 /* ViewController.swift */; };
@@ -36,6 +37,7 @@
 		C06AC8192D9ED396005960FF /* WorkoutLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WorkoutLog.entitlements; sourceTree = "<group>"; };
 		C06AC81B2D9ED54D005960FF /* HealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthManager.swift; sourceTree = "<group>"; };
 		C06AC81D2DA01340005960FF /* StepDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepDetailViewController.swift; sourceTree = "<group>"; };
+		C06AC8202DA0CD07005960FF /* StepViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepViewModel.swift; sourceTree = "<group>"; };
 		C0CD82DE2D981DDD002470D9 /* WorkoutLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorkoutLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0CD82F62D981DE4002470D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C0CD82F72D981DE4002470D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -96,6 +98,15 @@
 			path = Manager;
 			sourceTree = "<group>";
 		};
+		C06AC81F2DA03ED9005960FF /* Step */ = {
+			isa = PBXGroup;
+			children = (
+				C06AC8202DA0CD07005960FF /* StepViewModel.swift */,
+				C06AC81D2DA01340005960FF /* StepDetailViewController.swift */,
+			);
+			path = Step;
+			sourceTree = "<group>";
+		};
 		C0CD82D52D981DDD002470D9 = {
 			isa = PBXGroup;
 			children = (
@@ -149,7 +160,7 @@
 		C0CD831C2D9ACF31002470D9 /* Feature */ = {
 			isa = PBXGroup;
 			children = (
-				C06AC81D2DA01340005960FF /* StepDetailViewController.swift */,
+				C06AC81F2DA03ED9005960FF /* Step */,
 				C0DCEF192D9ADDB600E7395F /* Tab */,
 				C0CD831D2D9ACF3B002470D9 /* Home */,
 			);
@@ -269,9 +280,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -307,6 +322,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C06AC8212DA0CD13005960FF /* StepViewModel.swift in Sources */,
 				C0CD83002D981DE4002470D9 /* AppDelegate.swift in Sources */,
 				C0CD83012D981DE4002470D9 /* SceneDelegate.swift in Sources */,
 				C0CD83192D982F35002470D9 /* ActivityCollectionViewCell.swift in Sources */,

@@ -7,19 +7,20 @@
 
 import UIKit
 import SnapKit
+import Then
 
 class MyActivityViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
-    private let collectionView: UICollectionView = {
+    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout()).then {
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         layout.minimumInteritemSpacing = 10
         layout.minimumLineSpacing = 10
-
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .clear
-        return collectionView
-    }()
+        $0.collectionViewLayout = layout
+        $0.backgroundColor = .clear
+        $0.dataSource = self
+        $0.delegate = self
+        $0.register(ActivityCollectionViewCell.self, forCellWithReuseIdentifier: ActivityCollectionViewCell.identifier)
+    }
 
     private let viewModel = ActivityViewModel()
 
@@ -27,10 +28,6 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
         super.viewDidLoad()
         view.backgroundColor = UIColor(white: 0.95, alpha: 1)
         navigationController?.navigationBar.isHidden = true
-
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.register(ActivityCollectionViewCell.self, forCellWithReuseIdentifier: ActivityCollectionViewCell.identifier)
 
         view.addSubview(collectionView)
 
@@ -53,7 +50,14 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivityCollectionViewCell.identifier, for: indexPath) as! ActivityCollectionViewCell
-        cell.configure(with: viewModel.activities[indexPath.row])
+        let activity = viewModel.activities[indexPath.row]
+        
+        if activity.title == "걸음 수" {
+            cell.configure(with: activity)
+        } else {
+            cell.configure(with: activity)
+        }
+        
         return cell
     }
 
@@ -71,8 +75,8 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
 
         if selectedActivity.title == "걸음 수" {
             let detailVC = StepsDetailViewController(
-                steps: Int(selectedActivity.value) ?? 0,
-                goal: Int(selectedActivity.goal ?? "0")
+                steps: Int(selectedActivity.value),
+                goal: Int(selectedActivity.goal ?? 0.0)
             )
             navigationController?.pushViewController(detailVC, animated: true)
         }

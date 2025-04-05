@@ -9,6 +9,7 @@ target 'WorkoutLog' do
   pod "Then"
   pod "Alamofire"
   pod "Charts"
+  pod "UICircularProgressRing"
 
   # Pods for WorkoutLog
 
