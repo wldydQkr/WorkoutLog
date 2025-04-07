@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		BF8AE3954617081095A7204C /* Pods_WorkoutLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */; };
+		C06AC81C2D9ED552005960FF /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC81B2D9ED54D005960FF /* HealthManager.swift */; };
+		C06AC81E2DA01349005960FF /* StepDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC81D2DA01340005960FF /* StepDetailViewController.swift */; };
+		C06AC8212DA0CD13005960FF /* StepViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC8202DA0CD07005960FF /* StepViewModel.swift */; };
+		C06AC8242DA0F319005960FF /* RoutineCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC8232DA0F307005960FF /* RoutineCollectionViewCell.swift */; };
 		C0CD83002D981DE4002470D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82F62D981DE4002470D9 /* AppDelegate.swift */; };
 		C0CD83012D981DE4002470D9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82FD2D981DE4002470D9 /* SceneDelegate.swift */; };
 		C0CD83022D981DE4002470D9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD82FE2D981DE4002470D9 /* ViewController.swift */; };
@@ -31,6 +35,11 @@
 /* Begin PBXFileReference section */
 		1E442870D3627D10057D5624 /* Pods-WorkoutLog.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WorkoutLog.debug.xcconfig"; path = "Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog.debug.xcconfig"; sourceTree = "<group>"; };
 		5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WorkoutLog.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C06AC8192D9ED396005960FF /* WorkoutLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WorkoutLog.entitlements; sourceTree = "<group>"; };
+		C06AC81B2D9ED54D005960FF /* HealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthManager.swift; sourceTree = "<group>"; };
+		C06AC81D2DA01340005960FF /* StepDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepDetailViewController.swift; sourceTree = "<group>"; };
+		C06AC8202DA0CD07005960FF /* StepViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepViewModel.swift; sourceTree = "<group>"; };
+		C06AC8232DA0F307005960FF /* RoutineCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineCollectionViewCell.swift; sourceTree = "<group>"; };
 		C0CD82DE2D981DDD002470D9 /* WorkoutLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorkoutLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0CD82F62D981DE4002470D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C0CD82F72D981DE4002470D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -83,6 +92,32 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		C06AC81A2D9ED536005960FF /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				C06AC81B2D9ED54D005960FF /* HealthManager.swift */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
+		C06AC81F2DA03ED9005960FF /* Step */ = {
+			isa = PBXGroup;
+			children = (
+				C06AC8202DA0CD07005960FF /* StepViewModel.swift */,
+				C06AC81D2DA01340005960FF /* StepDetailViewController.swift */,
+			);
+			path = Step;
+			sourceTree = "<group>";
+		};
+		C06AC8222DA0F2FF005960FF /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				C06AC8232DA0F307005960FF /* RoutineCollectionViewCell.swift */,
+				C0CD83182D982F2D002470D9 /* ActivityCollectionViewCell.swift */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
 		C0CD82D52D981DDD002470D9 = {
 			isa = PBXGroup;
 			children = (
@@ -104,6 +139,8 @@
 		C0CD82FF2D981DE4002470D9 /* WorkoutLog */ = {
 			isa = PBXGroup;
 			children = (
+				C06AC81A2D9ED536005960FF /* Manager */,
+				C06AC8192D9ED396005960FF /* WorkoutLog.entitlements */,
 				C0CD831F2D9ADA24002470D9 /* Components */,
 				C0CD831E2D9ACF4A002470D9 /* Model */,
 				C0CD831C2D9ACF31002470D9 /* Feature */,
@@ -134,6 +171,7 @@
 		C0CD831C2D9ACF31002470D9 /* Feature */ = {
 			isa = PBXGroup;
 			children = (
+				C06AC81F2DA03ED9005960FF /* Step */,
 				C0DCEF192D9ADDB600E7395F /* Tab */,
 				C0CD831D2D9ACF3B002470D9 /* Home */,
 			);
@@ -143,9 +181,9 @@
 		C0CD831D2D9ACF3B002470D9 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				C06AC8222DA0F2FF005960FF /* Cell */,
 				C0CD83102D982ECE002470D9 /* ActivityViewModel.swift */,
 				C0CD830E2D982EAF002470D9 /* MyActivityViewController.swift */,
-				C0CD83182D982F2D002470D9 /* ActivityCollectionViewCell.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -253,9 +291,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -291,6 +333,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C06AC8212DA0CD13005960FF /* StepViewModel.swift in Sources */,
 				C0CD83002D981DE4002470D9 /* AppDelegate.swift in Sources */,
 				C0CD83012D981DE4002470D9 /* SceneDelegate.swift in Sources */,
 				C0CD83192D982F35002470D9 /* ActivityCollectionViewCell.swift in Sources */,
@@ -298,7 +341,9 @@
 				C0CD83022D981DE4002470D9 /* ViewController.swift in Sources */,
 				C0CD83112D982ED3002470D9 /* ActivityViewModel.swift in Sources */,
 				C0CD83172D982F1C002470D9 /* StatisticsViewModel.swift in Sources */,
+				C06AC81E2DA01349005960FF /* StepDetailViewController.swift in Sources */,
 				C0CD830C2D981F35002470D9 /* MemoDeatilViewController.swift in Sources */,
+				C06AC8242DA0F319005960FF /* RoutineCollectionViewCell.swift in Sources */,
 				C0CD830F2D982EB5002470D9 /* MyActivityViewController.swift in Sources */,
 				C0CD83132D982EE3002470D9 /* Activity.swift in Sources */,
 				C0CD83082D981E82002470D9 /* Memo.swift in Sources */,
@@ -306,6 +351,7 @@
 				C0CD83152D982EFC002470D9 /* Statistics.swift in Sources */,
 				C0CD830A2D981EA2002470D9 /* MemoManager.swift in Sources */,
 				C0CD831B2D982F51002470D9 /* StatisticsViewController.swift in Sources */,
+				C06AC81C2D9ED552005960FF /* HealthManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,15 +383,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WorkoutLog/WorkoutLog.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6NDM2TJS37;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutLog/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "some string value stating the reason";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "some string value stating the reason";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -367,15 +417,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WorkoutLog/WorkoutLog.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6NDM2TJS37;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutLog/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "some string value stating the reason";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "some string value stating the reason";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

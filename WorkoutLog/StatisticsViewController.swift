@@ -31,3 +31,14 @@ class StatisticsViewController: UIViewController {
         ])
     }
 }
+
+//extension StatisticsViewController: UITableViewDelegate {
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        let selectedActivity = viewModel.activities[indexPath.row]
+//        
+//        if selectedActivity.title == "걸음 수" {
+//            let detailVC = StepsDetailViewController(steps: Int(selectedActivity.value) ?? 0, goal: Int(selectedActivity.goal ?? "0"))
+//            navigationController?.pushViewController(detailVC, animated: true)
+//        }
+//    }
+//}

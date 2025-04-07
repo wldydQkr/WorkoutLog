@@ -8,6 +8,8 @@ target 'WorkoutLog' do
   pod "SnapKit"
   pod "Then"
   pod "Alamofire"
+  pod "Charts"
+  pod "UICircularProgressRing"
 
   # Pods for WorkoutLog
 
