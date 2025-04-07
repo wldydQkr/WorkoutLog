@@ -73,6 +73,7 @@ class StepsDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = true
         view.backgroundColor = UIColor(white: 0.95, alpha: 1)
         setupUI()
         viewModel.requestHealthKitAccess { success in

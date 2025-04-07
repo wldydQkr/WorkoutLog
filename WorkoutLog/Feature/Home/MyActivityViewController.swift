@@ -27,25 +27,25 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = true
         view.backgroundColor = UIColor(white: 0.95, alpha: 1)
-        navigationItem.hidesBackButton = true
-        navigationController?.setNavigationBarHidden(true, animated: false)
+
+        let headerView = UIView().then {
+            $0.backgroundColor = .clear
+        }
 
         let titleLabel = UILabel().then {
             $0.text = "WorkoutLog"
-            $0.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+            $0.font = UIFont.systemFont(ofSize: 24, weight: .bold)
             $0.textColor = .black
         }
 
         let profileImageView = UIImageView().then {
-            $0.image = UIImage(systemName: "person.circle") // Replace with actual image later
+            $0.image = UIImage(systemName: "person.circle")
             $0.contentMode = .scaleAspectFill
             $0.clipsToBounds = true
             $0.layer.cornerRadius = 15
             $0.tintColor = .black
-            $0.snp.makeConstraints {
-                $0.width.height.equalTo(30)
-            }
         }
 
         let stackView = UIStackView(arrangedSubviews: [titleLabel, profileImageView]).then {
@@ -54,13 +54,33 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
             $0.spacing = 8
         }
 
-        navigationItem.titleView = stackView
+        headerView.addSubview(stackView)
+        view.addSubview(headerView)
+
+        headerView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(60)
+        }
+
+        stackView.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.leading.equalToSuperview().offset(16)
+            $0.trailing.lessThanOrEqualToSuperview().offset(-16)
+        }
+
+        profileImageView.snp.makeConstraints {
+            $0.trailing.equalToSuperview().offset(16)
+            $0.width.height.equalTo(30)
+        }
 
         view.addSubview(collectionView)
 
         collectionView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(10)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.top.equalTo(headerView.snp.bottom).offset(10)
+            $0.leading.equalTo(view.safeAreaLayoutGuide.snp.leading)
+            $0.trailing.equalTo(view.safeAreaLayoutGuide.snp.trailing)
+            $0.bottom.equalToSuperview()
         }
 
         viewModel.onDataUpdated = { [weak self] in
@@ -92,7 +112,7 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
         let activity = viewModel.activities[indexPath.row]
 
         if activity.title == "루틴" {
-            let width = collectionView.frame.width - 20 // 10pt inset on both sides
+            let width = collectionView.frame.width - 20
             return CGSize(width: width, height: 150)
         } else {
             let itemsPerRow: CGFloat = 2

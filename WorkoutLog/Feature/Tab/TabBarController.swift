@@ -48,6 +48,7 @@ final class CustomTabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = true
         setupTabs()
         setupFloatingButton()
     }
@@ -80,7 +81,7 @@ final class CustomTabBarController: UITabBarController {
 
         NSLayoutConstraint.activate([
             floatingButton.centerXAnchor.constraint(equalTo: tabBar.centerXAnchor),
-            floatingButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
+            floatingButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
             floatingButton.widthAnchor.constraint(equalToConstant: 70),
             floatingButton.heightAnchor.constraint(equalToConstant: 70)
         ])
