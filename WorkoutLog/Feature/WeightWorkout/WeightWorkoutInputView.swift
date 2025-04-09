@@ -10,6 +10,7 @@ import UIKit
 final class WeightWorkoutInputView: UIView {
 
     var onUpdate: ((Int, Int, Double) -> Void)?
+    var onRemove: (() -> Void)?
 
     private var setCount: Int = 1 {
         didSet {
@@ -23,7 +24,11 @@ final class WeightWorkoutInputView: UIView {
         }
     }
 
-    private let scrollView = UIScrollView()
+    private let closeButton = UIButton(type: .system).then {
+        $0.setTitle("✕", for: .normal)
+        $0.setTitleColor(.gray, for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 20)
+    }
 
     private let inputContainer = UIStackView().then {
         $0.axis = .vertical
@@ -56,6 +61,15 @@ final class WeightWorkoutInputView: UIView {
     }
 
     private func setupUI() {
+        let headerStack = UIStackView(arrangedSubviews: [
+            titleLabel,
+            closeButton
+        ]).then {
+            $0.axis = .horizontal
+            $0.alignment = .center
+            $0.distribution = .equalSpacing
+        }
+
         let initialInputStack = createInputStack()
         inputContainer.addArrangedSubview(initialInputStack)
 
@@ -69,7 +83,7 @@ final class WeightWorkoutInputView: UIView {
         }
 
         let mainStack = UIStackView(arrangedSubviews: [
-            titleLabel,
+            headerStack,
             inputContainer,
             buttonStack
         ]).then {
@@ -79,21 +93,10 @@ final class WeightWorkoutInputView: UIView {
 
         mainStack.setContentHuggingPriority(.required, for: .vertical)
 
-        scrollView.addSubview(mainStack)
-        scrollView.alwaysBounceVertical = true
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(scrollView)
-
-        scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
+        addSubview(mainStack)
 
         mainStack.snp.makeConstraints {
-            $0.top.equalTo(scrollView.contentLayoutGuide.snp.top).offset(16)
-            $0.bottom.equalTo(scrollView.contentLayoutGuide.snp.bottom).inset(16)
-            $0.leading.equalTo(scrollView.contentLayoutGuide.snp.leading).offset(16)
-            $0.trailing.equalTo(scrollView.contentLayoutGuide.snp.trailing).inset(16)
-            $0.width.equalTo(scrollView.frameLayoutGuide.snp.width).offset(-32)
+            $0.edges.equalToSuperview().inset(16)
         }
     }
 
@@ -153,19 +156,13 @@ final class WeightWorkoutInputView: UIView {
     private func setupBindings() {
         addButton.addTarget(self, action: #selector(addSet), for: .touchUpInside)
         deleteButton.addTarget(self, action: #selector(deleteSet), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(removeSelf), for: .touchUpInside)
     }
 
     @objc private func addSet() {
         setCount += 1
         let newInputStack = createInputStack()
         inputContainer.addArrangedSubview(newInputStack)
-        DispatchQueue.main.async {
-            let bottomOffset = CGPoint(
-                x: 0,
-                y: self.scrollView.contentSize.height - self.scrollView.bounds.height + self.scrollView.contentInset.bottom
-            )
-            self.scrollView.setContentOffset(bottomOffset, animated: true)
-        }
     }
 
     @objc private func deleteSet() {
@@ -175,5 +172,56 @@ final class WeightWorkoutInputView: UIView {
             lastInputStack.removeFromSuperview()
             setCount -= 1
         }
+    }
+
+    @objc private func removeSelf() {
+        guard let viewController = self.findViewController() else {
+            removeFromSuperview()
+            return
+        }
+
+        let alert = UIAlertController(title: "삭제 확인", message: "정말로 삭제하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
+            self.removeFromSuperview()
+        }))
+        viewController.present(alert, animated: true, completion: nil)
+    }
+
+    private func findViewController() -> UIViewController? {
+        var responder: UIResponder? = self
+        while let r = responder {
+            if let vc = r as? UIViewController {
+                return vc
+            }
+            responder = r.next
+        }
+        return nil
+    }
+
+    func configure(with workout: WeightWorkout) {
+        titleLabel.text = workout.exerciseName
+        // 기존 세트들 제거
+        inputContainer.arrangedSubviews.forEach {
+            inputContainer.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
+        setCount = 1 // 세트 수 초기화
+
+        let inputStack = createInputStack()
+        if let label = inputStack.arrangedSubviews[0] as? UILabel {
+            label.text = "\(setCount)세트"
+        }
+        if let weightField = inputStack.arrangedSubviews[1] as? UITextField {
+            weightField.text = "\(Int(workout.weight))"
+        }
+        if let repsField = inputStack.arrangedSubviews[3] as? UITextField {
+            repsField.text = "\(workout.repetitions)"
+        }
+        inputContainer.addArrangedSubview(inputStack)
+    }
+
+    func configureTitle(_ title: String) {
+        titleLabel.text = title
     }
 }
