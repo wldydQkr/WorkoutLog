@@ -13,10 +13,23 @@ import Combine
 // MARK: - ViewController
 class WeightWorkoutViewController: UIViewController {
     private let viewModel = WeightWorkoutViewModel()
-    private let titleLabel = UILabel()
+    private let titleLabel = UILabel().then {
+        $0.font = .boldSystemFont(ofSize: 24)
+    }
+    private let hideDateButton = UIButton(type: .system).then {
+        $0.setTitle("숨기기", for: .normal)
+        $0.setTitleColor(.systemBlue, for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 16)
+    }
     private let contentStack = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 16
+    }
+    private let datePicker = UIDatePicker().then {
+        $0.preferredDatePickerStyle = .inline
+        $0.datePickerMode = .date
+        $0.locale = Locale(identifier: "ko_KR")
+        $0.calendar = Calendar(identifier: .gregorian)
     }
 
     override func viewDidLoad() {
@@ -41,20 +54,20 @@ class WeightWorkoutViewController: UIViewController {
             $0.width.equalTo(scrollView.snp.width)
         }
 
-        titleLabel.text = viewModel.currentDateString
-        titleLabel.font = .boldSystemFont(ofSize: 24)
-
-        let datePicker = UIDatePicker()
-        datePicker.preferredDatePickerStyle = .inline
-        datePicker.datePickerMode = .date
-        datePicker.locale = Locale(identifier: "ko_KR")
-        datePicker.calendar = Calendar(identifier: .gregorian)
         datePicker.addTarget(self, action: #selector(dateChanged(_:)), for: .valueChanged)
+        hideDateButton.addTarget(self, action: #selector(toggleDatePicker), for: .touchUpInside)
 
-        contentStack.addArrangedSubview(titleLabel)
+        let titleStack = UIStackView(arrangedSubviews: [titleLabel, hideDateButton]).then {
+            $0.axis = .horizontal
+            $0.alignment = .center
+            $0.distribution = .equalSpacing
+        }
+        contentStack.addArrangedSubview(titleStack)
         contentStack.addArrangedSubview(datePicker)
+        
+        titleLabel.text = viewModel.currentDateString
 
-        titleLabel.snp.makeConstraints {
+        titleStack.snp.makeConstraints {
             $0.height.equalTo(40)
         }
 
@@ -130,5 +143,10 @@ class WeightWorkoutViewController: UIViewController {
             workoutView.configure(with: workout)
             contentStack.addArrangedSubview(workoutView)
         }
+    }
+
+    @objc private func toggleDatePicker() {
+        datePicker.isHidden.toggle()
+        hideDateButton.setTitle(datePicker.isHidden ? "보이기" : "숨기기", for: .normal)
     }
 }
