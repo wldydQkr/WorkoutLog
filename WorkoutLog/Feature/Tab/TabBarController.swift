@@ -7,29 +7,6 @@
 
 import UIKit
 
-//final class TabBarController: UITabBarController {
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        setupTabs()
-//    }
-//
-//    private func setupTabs() {
-//        let homeVC = UINavigationController(rootViewController: MyActivityViewController())
-//        homeVC.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), tag: 0)
-//
-//        let activityVC = UINavigationController(rootViewController: MyActivityViewController())
-//        activityVC.tabBarItem = UITabBarItem(title: "Activity", image: UIImage(systemName: "heart.fill"), tag: 1)
-//
-//        let searchVC = UINavigationController(rootViewController: MyActivityViewController())
-//        searchVC.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), tag: 2)
-//
-//        viewControllers = [homeVC, activityVC, searchVC]
-//
-//        tabBar.tintColor = .black
-//        tabBar.backgroundColor = .white
-//    }
-//}
-
 final class CustomTabBarController: UITabBarController {
 
     private let floatingButton: UIButton = {
@@ -37,7 +14,6 @@ final class CustomTabBarController: UITabBarController {
         button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.backgroundColor = .white
         button.tintColor = .black
-//        button.titleLabel?.font = .systemFont(ofSize: 40, weight: .bold)
         button.layer.cornerRadius = 35
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOpacity = 0.2
@@ -93,3 +69,24 @@ final class CustomTabBarController: UITabBarController {
         print("플로팅 버튼 클릭됨")
     }
 }
+
+#if DEBUG
+import SwiftUI
+
+struct CustomTabBarController_Preview: PreviewProvider {
+    static var previews: some View {
+        CustomTabBarControllerPreview()
+            .edgesIgnoringSafeArea(.all)
+    }
+
+    struct CustomTabBarControllerPreview: UIViewControllerRepresentable {
+        func makeUIViewController(context: Context) -> UIViewController {
+            return CustomTabBarController()
+        }
+
+        func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+            // no-op
+        }
+    }
+}
+#endif

@@ -17,9 +17,9 @@ class WeightWorkoutViewController: UIViewController {
         $0.font = .boldSystemFont(ofSize: 24)
     }
     private let hideDateButton = UIButton(type: .system).then {
-        $0.setTitle("숨기기", for: .normal)
-        $0.setTitleColor(.systemBlue, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 16)
+        $0.setImage(UIImage(systemName: "chevron.down"), for: .normal)
+        $0.tintColor = .white
+        $0.backgroundColor = .black
     }
     private let contentStack = UIStackView().then {
         $0.axis = .vertical
@@ -27,6 +27,7 @@ class WeightWorkoutViewController: UIViewController {
     }
     private let datePicker = UIDatePicker().then {
         $0.preferredDatePickerStyle = .inline
+        $0.tintColor = .black
         $0.datePickerMode = .date
         $0.locale = Locale(identifier: "ko_KR")
         $0.calendar = Calendar(identifier: .gregorian)
@@ -57,19 +58,14 @@ class WeightWorkoutViewController: UIViewController {
         datePicker.addTarget(self, action: #selector(dateChanged(_:)), for: .valueChanged)
         hideDateButton.addTarget(self, action: #selector(toggleDatePicker), for: .touchUpInside)
 
-        let titleStack = UIStackView(arrangedSubviews: [titleLabel, hideDateButton]).then {
+        let titleStack = UIStackView(arrangedSubviews: [titleLabel]).then {
             $0.axis = .horizontal
             $0.alignment = .center
             $0.distribution = .equalSpacing
         }
-        contentStack.addArrangedSubview(titleStack)
         contentStack.addArrangedSubview(datePicker)
         
         titleLabel.text = viewModel.currentDateString
-
-        titleStack.snp.makeConstraints {
-            $0.height.equalTo(40)
-        }
 
         datePicker.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
@@ -83,27 +79,47 @@ class WeightWorkoutViewController: UIViewController {
             $0.layer.cornerRadius = 22
         }
 
-        view.addSubview(addWorkoutButton)
-        addWorkoutButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(20)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(20)
+        let buttonStack = UIStackView(arrangedSubviews: [hideDateButton, addWorkoutButton]).then {
+            $0.axis = .horizontal
+            $0.spacing = 16
+            $0.distribution = .equalSpacing
+        }
+        view.addSubview(buttonStack)
+        buttonStack.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(20)
             $0.height.equalTo(44)
+        }
+
+        addWorkoutButton.snp.makeConstraints {
             $0.width.equalTo(120)
         }
 
+        hideDateButton.snp.makeConstraints {
+            $0.width.equalTo(44)
+        }
+        
         addWorkoutButton.addTarget(self, action: #selector(addWorkoutTapped), for: .touchUpInside)
+        
+        hideDateButton.layer.cornerRadius = 22
+        hideDateButton.backgroundColor = .black
     }
 
     func addInputViews(for exercises: [String]) {
-        // Remove old workout views
-        let preservedViews = contentStack.arrangedSubviews.prefix(2)
-        contentStack.arrangedSubviews.dropFirst(2).forEach { view in
+        // Remove all workout views after the date picker
+        let preservedCount = 2
+        let toRemove = contentStack.arrangedSubviews.dropFirst(preservedCount)
+        toRemove.forEach { view in
             contentStack.removeArrangedSubview(view)
             view.removeFromSuperview()
         }
 
+        // Remove duplicates while preserving order
+        var seen = Set<String>()
+        let uniqueExercises = exercises.filter { seen.insert($0).inserted }
+
         // Add new input views
-        for exercise in exercises {
+        for exercise in uniqueExercises {
             let inputView = WeightWorkoutInputView()
             inputView.configureTitle(exercise)
             contentStack.addArrangedSubview(inputView)
@@ -147,6 +163,28 @@ class WeightWorkoutViewController: UIViewController {
 
     @objc private func toggleDatePicker() {
         datePicker.isHidden.toggle()
-        hideDateButton.setTitle(datePicker.isHidden ? "보이기" : "숨기기", for: .normal)
+        let imageName = datePicker.isHidden ? "chevron.up" : "chevron.down"
+        hideDateButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
 }
+
+#if DEBUG
+import SwiftUI
+
+struct WeightWorkoutViewController_Preview: PreviewProvider {
+    static var previews: some View {
+        WeightWorkoutViewControllerPreview()
+            .edgesIgnoringSafeArea(.all)
+    }
+
+    struct WeightWorkoutViewControllerPreview: UIViewControllerRepresentable {
+        func makeUIViewController(context: Context) -> UIViewController {
+            return WeightWorkoutViewController()
+        }
+
+        func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+            // No update logic
+        }
+    }
+}
+#endif
