@@ -25,20 +25,33 @@ class WeightWorkoutViewController: UIViewController {
         $0.axis = .vertical
         $0.spacing = 16
     }
-    private let datePicker = UIDatePicker().then {
-        $0.preferredDatePickerStyle = .inline
+    private let calendarView = UICalendarView().then {
         $0.tintColor = .black
-        $0.datePickerMode = .date
         $0.locale = Locale(identifier: "ko_KR")
         $0.calendar = Calendar(identifier: .gregorian)
+        $0.fontDesign = .rounded
+        $0.availableDateRange = DateInterval(start: .distantPast, end: .distantFuture)
     }
+    
+    private var selectedDate: Date = Date()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         self.navigationController?.navigationBar.isHidden = true
         setupUI()
-        dateChanged(datePicker)
+        setupCalendar()
+        updateSelectedDate(selectedDate)
+    }
+    
+    private func setupCalendar() {
+        let dateSelection = UICalendarSelectionSingleDate(delegate: self)
+        calendarView.selectionBehavior = dateSelection
+        
+        // 오늘 날짜 선택 - Date를 DateComponents로 변환
+        let calendar = Calendar.current
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
+        (calendarView.selectionBehavior as? UICalendarSelectionSingleDate)?.setSelected(dateComponents, animated: false)
     }
 
     private func setupUI() {
@@ -58,20 +71,20 @@ class WeightWorkoutViewController: UIViewController {
             $0.width.equalTo(scrollView.snp.width)
         }
 
-        datePicker.addTarget(self, action: #selector(dateChanged(_:)), for: .valueChanged)
-        hideDateButton.addTarget(self, action: #selector(toggleDatePicker), for: .touchUpInside)
+        hideDateButton.addTarget(self, action: #selector(toggleCalendarView), for: .touchUpInside)
 
         let titleStack = UIStackView(arrangedSubviews: [titleLabel]).then {
             $0.axis = .horizontal
             $0.alignment = .center
             $0.distribution = .equalSpacing
         }
-        contentStack.addArrangedSubview(datePicker)
+        contentStack.addArrangedSubview(calendarView)
         
         titleLabel.text = viewModel.currentDateString
 
-        datePicker.snp.makeConstraints {
+        calendarView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(300) // 기본 높이 설정
         }
 
         let addWorkoutButton = UIButton(type: .system).then {
@@ -126,7 +139,6 @@ class WeightWorkoutViewController: UIViewController {
 
         // 이미 저장된 운동이 있는지 확인 (중복 추가 방지)
         let realm = try! Realm()
-        let selectedDate = datePicker.date
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
@@ -153,9 +165,9 @@ class WeightWorkoutViewController: UIViewController {
         navigationController?.pushViewController(selectionVC, animated: true)
     }
     
-    @objc private func dateChanged(_ sender: UIDatePicker) {
-        let date = sender.date
-
+    private func updateSelectedDate(_ date: Date) {
+        self.selectedDate = date
+        
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "yyyy년 M월 d일 (E)"
@@ -214,10 +226,25 @@ class WeightWorkoutViewController: UIViewController {
         }
     }
 
-    @objc private func toggleDatePicker() {
-        datePicker.isHidden.toggle()
-        let imageName = datePicker.isHidden ? "chevron.up" : "chevron.down"
+    @objc private func toggleCalendarView() {
+        calendarView.isHidden.toggle()
+        let imageName = calendarView.isHidden ? "chevron.up" : "chevron.down"
         hideDateButton.setImage(UIImage(systemName: imageName), for: .normal)
+    }
+}
+
+// MARK: - UICalendarSelectionSingleDateDelegate
+extension WeightWorkoutViewController: UICalendarSelectionSingleDateDelegate {
+    func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
+        guard let dateComponents = dateComponents,
+              let date = Calendar.current.date(from: dateComponents) else { return }
+        
+        updateSelectedDate(date)
+    }
+    
+    func dateSelection(_ selection: UICalendarSelectionSingleDate, canSelectDate dateComponents: DateComponents?) -> Bool {
+        // 모든 날짜 선택 가능 (필요하면 제한 추가)
+        return true
     }
 }
 

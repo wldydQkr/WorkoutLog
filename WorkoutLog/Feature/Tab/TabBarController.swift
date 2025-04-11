@@ -30,10 +30,10 @@ final class CustomTabBarController: UITabBarController {
     }
 
     private func setupTabs() {
-        let homeVC = UINavigationController(rootViewController: MyActivityViewController())
+        let homeVC = UINavigationController(rootViewController: WeightWorkoutViewController())
         homeVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "house"), tag: 0)
 
-        let activityVC = UINavigationController(rootViewController: WeightWorkoutViewController())
+        let activityVC = UINavigationController(rootViewController: MyActivityViewController())
         activityVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "heart.fill"), tag: 1)
 
         let placeholderVC = UIViewController()

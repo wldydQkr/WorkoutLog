@@ -71,12 +71,14 @@ final class WeightWorkoutInputView: UIView {
         super.init(frame: frame)
         setupUI()
         setupBindings()
+        addSet() // 초기 세트 추가
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupUI()
         setupBindings()
+        addSet() // 초기 세트 추가
     }
 
     private func setupUI() {
@@ -180,9 +182,9 @@ final class WeightWorkoutInputView: UIView {
     }
 
     @objc private func addSet() {
-        setCount += 1
         let newInputStack = createInputStack()
         inputContainer.addArrangedSubview(newInputStack)
+        setCount = inputContainer.arrangedSubviews.count
     }
 
     @objc private func deleteSet() {

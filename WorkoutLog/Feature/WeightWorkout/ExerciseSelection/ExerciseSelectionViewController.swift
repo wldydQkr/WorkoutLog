@@ -144,6 +144,7 @@ class ExerciseSelectionViewController: UIViewController {
 
     @objc private func editTapped() {
         isEditingSection.toggle()
+        isDeleteMode = false
         tableView.reloadData()
     }
 
@@ -216,13 +217,12 @@ extension ExerciseSelectionViewController: UITableViewDataSource, UITableViewDel
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let exercise = categories[indexPath.section].exercises[indexPath.row]
-        selectedExercises.insert(exercise)
-        tableView.reloadRows(at: [indexPath], with: .automatic)
-    }
-
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let exercise = categories[indexPath.section].exercises[indexPath.row]
-        selectedExercises.remove(exercise)
+        if selectedExercises.contains(exercise) {
+            selectedExercises.remove(exercise)
+            tableView.deselectRow(at: indexPath, animated: true)
+        } else {
+            selectedExercises.insert(exercise)
+        }
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 
