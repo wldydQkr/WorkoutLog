@@ -17,17 +17,15 @@ class WeightWorkoutViewModel {
         return formatter.string(from: Date())
     }
 
-    func addWorkout(exerciseName: String, sets: Int, repetitions: Int, weight: Double, unit: String, date: Date) {
-        let workout = WeightWorkout(exerciseName: exerciseName, sets: sets, repetitions: repetitions, weight: weight, unit: WeightWorkout.Unit(rawValue: unit) ?? .kg, date: date)
+    func addWorkout(exerciseName: String, setInfos: [WeightWorkout.SetInfo], unit: String, date: Date) {
+        let workout = WeightWorkout(exerciseName: exerciseName, sets: setInfos, unit: WeightWorkout.Unit(rawValue: unit) ?? .kg, date: date)
         workouts.append(workout)
     }
 
-    func updateWorkout(id: UUID, sets: Int, repetitions: Int, weight: Double) {
+    func updateWorkout(id: UUID, setInfos: [WeightWorkout.SetInfo]) {
         if let index = workouts.firstIndex(where: { $0.id == id }) {
             var updatedWorkout = workouts[index]
-            updatedWorkout.sets = sets
-            updatedWorkout.repetitions = repetitions
-            updatedWorkout.weight = weight
+            updatedWorkout.sets = setInfos
             workouts[index] = updatedWorkout
         }
     }

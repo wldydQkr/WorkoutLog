@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 import Then
-//import Combine
+import RealmSwift
 
 // MARK: - ViewController
 class WeightWorkoutViewController: UIViewController {
@@ -38,6 +38,7 @@ class WeightWorkoutViewController: UIViewController {
         view.backgroundColor = .white
         self.navigationController?.navigationBar.isHidden = true
         setupUI()
+        dateChanged(datePicker)
     }
 
     private func setupUI() {
@@ -108,6 +109,9 @@ class WeightWorkoutViewController: UIViewController {
     }
 
     func addInputViews(for exercises: [String]) {
+        // If no exercises passed, do nothing
+        guard !exercises.isEmpty else { return }
+
         // Remove all workout views after the date picker
         let preservedCount = 2
         let toRemove = contentStack.arrangedSubviews.dropFirst(preservedCount)
@@ -120,10 +124,22 @@ class WeightWorkoutViewController: UIViewController {
         var seen = Set<String>()
         let uniqueExercises = exercises.filter { seen.insert($0).inserted }
 
-        // Add new input views
-        for exercise in uniqueExercises {
+        // Check if there's already saved data for this date to prevent duplication
+        let realm = try! Realm()
+        let selectedDate = datePicker.date
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let existingWorkouts = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+
+        let existingExerciseNames = Set(existingWorkouts.map { $0.exerciseName })
+
+        for exercise in uniqueExercises where !existingExerciseNames.contains(exercise) {
             let inputView = WeightWorkoutInputView()
             inputView.configureTitle(exercise)
+            inputView.selectedDate = selectedDate
             contentStack.addArrangedSubview(inputView)
         }
     }
@@ -145,20 +161,33 @@ class WeightWorkoutViewController: UIViewController {
         formatter.dateFormat = "yyyy년 M월 d일 (E)"
         titleLabel.text = formatter.string(from: date)
 
+        // Clear old views except preserved
         let preservedViews = contentStack.arrangedSubviews.prefix(2)
         contentStack.arrangedSubviews.dropFirst(2).forEach { view in
             contentStack.removeArrangedSubview(view)
             view.removeFromSuperview()
         }
 
+        // Fetch data from Realm
+        let realm = try! Realm()
         let calendar = Calendar.current
-        let workoutsForDate = viewModel.workouts.filter {
-            calendar.isDate($0.date, inSameDayAs: date)
-        }
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
 
-        for workout in workoutsForDate {
+        let results = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+            .sorted(byKeyPath: "sets")
+
+        guard !results.isEmpty else { return }
+
+        let grouped = Dictionary(grouping: results, by: { $0.exerciseName })
+
+        for (exerciseName, sets) in grouped {
             let workoutView = WeightWorkoutInputView()
-            workoutView.configure(with: workout)
+            let workout = WeightWorkout(exerciseName: exerciseName, sets: sets.map {
+                WeightWorkout.SetInfo(weight: $0.weight, reps: $0.repetitions)
+            }, date: date)
+            workoutView.configure(with: workout, date: date)
             contentStack.addArrangedSubview(workoutView)
         }
     }
