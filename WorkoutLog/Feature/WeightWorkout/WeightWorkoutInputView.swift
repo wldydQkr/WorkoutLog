@@ -23,6 +23,10 @@ final class WeightWorkoutInputView: UIView {
     var onRemove: (() -> Void)?
 
     var selectedDate: Date = Date()
+    
+    var exerciseName: String? {
+        return titleLabel.text
+    }
 
     private var setCount: Int = 1 {
         didSet {

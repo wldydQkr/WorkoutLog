@@ -109,10 +109,10 @@ class WeightWorkoutViewController: UIViewController {
     }
 
     func addInputViews(for exercises: [String]) {
-        // If no exercises passed, do nothing
+        // 운동 항목이 없으면 아무 작업도 하지 않음
         guard !exercises.isEmpty else { return }
 
-        // Remove all workout views after the date picker
+        // 날짜 선택기 이후의 모든 운동 입력 뷰 제거
         let preservedCount = 2
         let toRemove = contentStack.arrangedSubviews.dropFirst(preservedCount)
         toRemove.forEach { view in
@@ -120,11 +120,11 @@ class WeightWorkoutViewController: UIViewController {
             view.removeFromSuperview()
         }
 
-        // Remove duplicates while preserving order
+        // 중복 제거 (입력 순서 유지)
         var seen = Set<String>()
         let uniqueExercises = exercises.filter { seen.insert($0).inserted }
 
-        // Check if there's already saved data for this date to prevent duplication
+        // 이미 저장된 운동이 있는지 확인 (중복 추가 방지)
         let realm = try! Realm()
         let selectedDate = datePicker.date
         let calendar = Calendar.current
@@ -161,14 +161,14 @@ class WeightWorkoutViewController: UIViewController {
         formatter.dateFormat = "yyyy년 M월 d일 (E)"
         titleLabel.text = formatter.string(from: date)
 
-        // Clear old views except preserved
+        // 날짜 변경 시 기존 운동 뷰 제거 (상단 뷰 제외)
         let preservedViews = contentStack.arrangedSubviews.prefix(2)
         contentStack.arrangedSubviews.dropFirst(2).forEach { view in
             contentStack.removeArrangedSubview(view)
             view.removeFromSuperview()
         }
 
-        // Fetch data from Realm
+        // Realm에서 선택된 날짜의 운동 데이터 조회
         let realm = try! Realm()
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
@@ -178,9 +178,31 @@ class WeightWorkoutViewController: UIViewController {
             .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
             .sorted(byKeyPath: "sets")
 
+        // Realm에 데이터가 없으면 모든 InputView 제거 후 리턴
+        if results.isEmpty {
+            contentStack.arrangedSubviews.forEach { view in
+                if view is WeightWorkoutInputView {
+                    contentStack.removeArrangedSubview(view)
+                    view.removeFromSuperview()
+                }
+            }
+            return
+        }
+
         guard !results.isEmpty else { return }
 
         let grouped = Dictionary(grouping: results, by: { $0.exerciseName })
+
+        // 현재 날짜의 운동 이름들만 유지하고 나머지 InputView는 제거
+        let validExerciseNames = Set(grouped.keys)
+        contentStack.arrangedSubviews.forEach { view in
+            if let inputView = view as? WeightWorkoutInputView,
+               let exerciseName = inputView.exerciseName,
+               !validExerciseNames.contains(exerciseName) {
+                contentStack.removeArrangedSubview(view)
+                view.removeFromSuperview()
+            }
+        }
 
         for (exerciseName, sets) in grouped {
             let workoutView = WeightWorkoutInputView()
@@ -214,7 +236,7 @@ struct WeightWorkoutViewController_Preview: PreviewProvider {
         }
 
         func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-            // No update logic
+            // 업데이트 로직 없음
         }
     }
 }
