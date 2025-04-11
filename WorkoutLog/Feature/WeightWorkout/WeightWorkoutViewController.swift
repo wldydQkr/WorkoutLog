@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 import Then
-import Combine
+//import Combine
 
 // MARK: - ViewController
 class WeightWorkoutViewController: UIViewController {
@@ -42,6 +42,8 @@ class WeightWorkoutViewController: UIViewController {
 
     private func setupUI() {
         let scrollView = UIScrollView()
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
         view.addSubview(scrollView)
 
         scrollView.snp.makeConstraints {

@@ -10,7 +10,7 @@ target 'WorkoutLog' do
   pod "Alamofire"
   pod "Charts"
   pod "UICircularProgressRing"
-  pod "Realm"
+  pod "RealmSwift"
 
   # Pods for WorkoutLog
 
