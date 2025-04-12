@@ -30,6 +30,12 @@
 		C0CD831B2D982F51002470D9 /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD831A2D982F46002470D9 /* StatisticsViewController.swift */; };
 		C0CD83212D9ADA3A002470D9 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CD83202D9ADA2B002470D9 /* CircularProgressView.swift */; };
 		C0DCEF1B2D9ADDC300E7395F /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DCEF1A2D9ADDBF00E7395F /* TabBarController.swift */; };
+		C0F3CB5D2DA692CE00D3D6BF /* ExerciseCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB5C2DA692C300D3D6BF /* ExerciseCategory.swift */; };
+		C0F3CB602DA6930900D3D6BF /* ExerciseSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB5F2DA692FF00D3D6BF /* ExerciseSelectionViewController.swift */; };
+		C0F594592DA552490015EA47 /* WeightWorkout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F594582DA552400015EA47 /* WeightWorkout.swift */; };
+		C0F5945B2DA552C90015EA47 /* WeightWorkoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F5945A2DA552C20015EA47 /* WeightWorkoutViewModel.swift */; };
+		C0F5945D2DA553070015EA47 /* WeightWorkoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F5945C2DA553020015EA47 /* WeightWorkoutViewController.swift */; };
+		C0F5945F2DA55A2F0015EA47 /* WeightWorkoutInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F5945E2DA55A2D0015EA47 /* WeightWorkoutInputView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +66,12 @@
 		C0CD831A2D982F46002470D9 /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
 		C0CD83202D9ADA2B002470D9 /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		C0DCEF1A2D9ADDBF00E7395F /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		C0F3CB5C2DA692C300D3D6BF /* ExerciseCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseCategory.swift; sourceTree = "<group>"; };
+		C0F3CB5F2DA692FF00D3D6BF /* ExerciseSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSelectionViewController.swift; sourceTree = "<group>"; };
+		C0F594582DA552400015EA47 /* WeightWorkout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkout.swift; sourceTree = "<group>"; };
+		C0F5945A2DA552C20015EA47 /* WeightWorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkoutViewModel.swift; sourceTree = "<group>"; };
+		C0F5945C2DA553020015EA47 /* WeightWorkoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkoutViewController.swift; sourceTree = "<group>"; };
+		C0F5945E2DA55A2D0015EA47 /* WeightWorkoutInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkoutInputView.swift; sourceTree = "<group>"; };
 		E2EB9DA0062C1A4D47538DFD /* Pods-WorkoutLog.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WorkoutLog.release.xcconfig"; path = "Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -171,6 +183,7 @@
 		C0CD831C2D9ACF31002470D9 /* Feature */ = {
 			isa = PBXGroup;
 			children = (
+				C0F594572DA551E80015EA47 /* WeightWorkout */,
 				C06AC81F2DA03ED9005960FF /* Step */,
 				C0DCEF192D9ADDB600E7395F /* Tab */,
 				C0CD831D2D9ACF3B002470D9 /* Home */,
@@ -191,6 +204,7 @@
 		C0CD831E2D9ACF4A002470D9 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				C0F3CB5C2DA692C300D3D6BF /* ExerciseCategory.swift */,
 				C0CD83122D982EDF002470D9 /* Activity.swift */,
 				C0CD83142D982EEE002470D9 /* Statistics.swift */,
 			);
@@ -211,6 +225,26 @@
 				C0DCEF1A2D9ADDBF00E7395F /* TabBarController.swift */,
 			);
 			path = Tab;
+			sourceTree = "<group>";
+		};
+		C0F3CB5E2DA692EC00D3D6BF /* ExerciseSelection */ = {
+			isa = PBXGroup;
+			children = (
+				C0F3CB5F2DA692FF00D3D6BF /* ExerciseSelectionViewController.swift */,
+			);
+			path = ExerciseSelection;
+			sourceTree = "<group>";
+		};
+		C0F594572DA551E80015EA47 /* WeightWorkout */ = {
+			isa = PBXGroup;
+			children = (
+				C0F3CB5E2DA692EC00D3D6BF /* ExerciseSelection */,
+				C0F5945E2DA55A2D0015EA47 /* WeightWorkoutInputView.swift */,
+				C0F5945C2DA553020015EA47 /* WeightWorkoutViewController.swift */,
+				C0F5945A2DA552C20015EA47 /* WeightWorkoutViewModel.swift */,
+				C0F594582DA552400015EA47 /* WeightWorkout.swift */,
+			);
+			path = WeightWorkout;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -291,13 +325,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -340,18 +370,24 @@
 				C0DCEF1B2D9ADDC300E7395F /* TabBarController.swift in Sources */,
 				C0CD83022D981DE4002470D9 /* ViewController.swift in Sources */,
 				C0CD83112D982ED3002470D9 /* ActivityViewModel.swift in Sources */,
+				C0F3CB5D2DA692CE00D3D6BF /* ExerciseCategory.swift in Sources */,
 				C0CD83172D982F1C002470D9 /* StatisticsViewModel.swift in Sources */,
 				C06AC81E2DA01349005960FF /* StepDetailViewController.swift in Sources */,
 				C0CD830C2D981F35002470D9 /* MemoDeatilViewController.swift in Sources */,
+				C0F3CB602DA6930900D3D6BF /* ExerciseSelectionViewController.swift in Sources */,
 				C06AC8242DA0F319005960FF /* RoutineCollectionViewCell.swift in Sources */,
+				C0F5945F2DA55A2F0015EA47 /* WeightWorkoutInputView.swift in Sources */,
 				C0CD830F2D982EB5002470D9 /* MyActivityViewController.swift in Sources */,
+				C0F5945B2DA552C90015EA47 /* WeightWorkoutViewModel.swift in Sources */,
 				C0CD83132D982EE3002470D9 /* Activity.swift in Sources */,
+				C0F594592DA552490015EA47 /* WeightWorkout.swift in Sources */,
 				C0CD83082D981E82002470D9 /* Memo.swift in Sources */,
 				C0CD83212D9ADA3A002470D9 /* CircularProgressView.swift in Sources */,
 				C0CD83152D982EFC002470D9 /* Statistics.swift in Sources */,
 				C0CD830A2D981EA2002470D9 /* MemoManager.swift in Sources */,
 				C0CD831B2D982F51002470D9 /* StatisticsViewController.swift in Sources */,
 				C06AC81C2D9ED552005960FF /* HealthManager.swift in Sources */,
+				C0F5945D2DA553070015EA47 /* WeightWorkoutViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

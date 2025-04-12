@@ -28,7 +28,8 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.isHidden = true
-        view.backgroundColor = UIColor(white: 0.95, alpha: 1)
+//        view.backgroundColor = UIColor(white: 0.95, alpha: 1)
+        view.backgroundColor = .white
 
         let headerView = UIView().then {
             $0.backgroundColor = .clear

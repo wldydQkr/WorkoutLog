@@ -1,3 +1,10 @@
+//
+//  ActivityViewModel.swift
+//  WorkoutLog
+//
+//  Created by 박지용 on 3/29/25.
+//
+
 import Foundation
 import HealthKit
 import UIKit
