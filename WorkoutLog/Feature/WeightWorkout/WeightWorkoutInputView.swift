@@ -49,7 +49,7 @@ final class WeightWorkoutInputView: UIView {
 
     private let inputContainer = UIStackView().then {
         $0.axis = .vertical
-        $0.spacing = 8
+        $0.spacing = 0
     }
 
     private let titleLabel = UILabel().then {
@@ -156,12 +156,21 @@ final class WeightWorkoutInputView: UIView {
             $0.font = .systemFont(ofSize: 16)
         }
 
-        let stack = UIStackView(arrangedSubviews: [
-            setLabel,
+        let inputFieldsStack = UIStackView(arrangedSubviews: [
             weightTextField,
             kgLabel,
             repsTextField,
             repsLabel
+        ]).then {
+            $0.axis = .horizontal
+            $0.spacing = 4
+            $0.alignment = .center
+            $0.distribution = .fill
+        }
+
+        let mainStack = UIStackView(arrangedSubviews: [
+            setLabel,
+            inputFieldsStack
         ]).then {
             $0.axis = .horizontal
             $0.spacing = 8
@@ -169,10 +178,10 @@ final class WeightWorkoutInputView: UIView {
             $0.distribution = .fill
         }
 
-        stack.layoutMargins = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
-        stack.isLayoutMarginsRelativeArrangement = true
+        mainStack.layoutMargins = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        mainStack.isLayoutMarginsRelativeArrangement = true
 
-        return stack
+        return mainStack
     }
 
     private func setupBindings() {
@@ -244,10 +253,13 @@ final class WeightWorkoutInputView: UIView {
             if let label = inputStack.arrangedSubviews[0] as? UILabel {
                 label.text = "\(index + 1)세트"
             }
-            if let weightField = inputStack.arrangedSubviews[1] as? UITextField {
+
+            if let inputFieldsStack = inputStack.arrangedSubviews[1] as? UIStackView,
+               inputFieldsStack.arrangedSubviews.count >= 3,
+               let weightField = inputFieldsStack.arrangedSubviews[0] as? UITextField,
+               let repsField = inputFieldsStack.arrangedSubviews[2] as? UITextField {
+
                 weightField.text = "\(Int(set.weight))"
-            }
-            if let repsField = inputStack.arrangedSubviews[3] as? UITextField {
                 repsField.text = "\(set.reps)"
             }
 
@@ -278,8 +290,9 @@ final class WeightWorkoutInputView: UIView {
             // Save new data
             for (index, subview) in inputContainer.arrangedSubviews.enumerated() {
                 guard let stack = subview as? UIStackView,
-                      let weightField = stack.arrangedSubviews[1] as? UITextField,
-                      let repsField = stack.arrangedSubviews[3] as? UITextField,
+                      let inputFieldsStack = stack.arrangedSubviews[1] as? UIStackView,
+                      let weightField = inputFieldsStack.arrangedSubviews[0] as? UITextField,
+                      let repsField = inputFieldsStack.arrangedSubviews[2] as? UITextField,
                       let weight = Double(weightField.text ?? ""),
                       let reps = Int(repsField.text ?? "") else { continue }
 

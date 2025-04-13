@@ -165,12 +165,17 @@ class ExerciseSelectionViewController: UIViewController {
         let addAction = UIAlertAction(title: "추가", style: .default) { _ in
             guard let name = alert.textFields?.first?.text, !name.isEmpty else { return }
 
-            let newExercise = ExerciseObject()
-            newExercise.name = name
-            newExercise.category = category
+            do {
+                let newExercise = ExerciseObject()
+                newExercise.name = name
+                newExercise.category = category
 
-            try? self.realm.write {
-                self.realm.add(newExercise)
+                try self.realm.write {
+                    self.realm.add(newExercise)
+                }
+                print("✅ 운동 저장 성공: \(name)")
+            } catch {
+                print("❌ Realm 저장 실패: \(error.localizedDescription)")
             }
 
             self.loadExercisesFromRealm()

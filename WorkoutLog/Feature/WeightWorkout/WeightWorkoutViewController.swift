@@ -29,8 +29,10 @@ class WeightWorkoutViewController: UIViewController {
         $0.tintColor = .black
         $0.locale = Locale(identifier: "ko_KR")
         $0.calendar = Calendar(identifier: .gregorian)
-        $0.fontDesign = .rounded
+        $0.fontDesign = .monospaced
         $0.availableDateRange = DateInterval(start: .distantPast, end: .distantFuture)
+        $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        $0.preservesSuperviewLayoutMargins = false
     }
     
     private var selectedDate: Date = Date()
@@ -52,6 +54,8 @@ class WeightWorkoutViewController: UIViewController {
         let calendar = Calendar.current
         let dateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
         (calendarView.selectionBehavior as? UICalendarSelectionSingleDate)?.setSelected(dateComponents, animated: false)
+        
+        calendarView.delegate = self
     }
 
     private func setupUI() {
@@ -84,7 +88,7 @@ class WeightWorkoutViewController: UIViewController {
 
         calendarView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(300) // 기본 높이 설정
+            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.1)
         }
 
         let addWorkoutButton = UIButton(type: .system).then {
@@ -154,6 +158,8 @@ class WeightWorkoutViewController: UIViewController {
             inputView.selectedDate = selectedDate
             contentStack.addArrangedSubview(inputView)
         }
+        
+        calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)], animated: true)
     }
 
     @objc private func addWorkoutTapped() {
@@ -224,6 +230,8 @@ class WeightWorkoutViewController: UIViewController {
             workoutView.configure(with: workout, date: date)
             contentStack.addArrangedSubview(workoutView)
         }
+        
+        calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: date)], animated: true)
     }
 
     @objc private func toggleCalendarView() {
@@ -245,6 +253,22 @@ extension WeightWorkoutViewController: UICalendarSelectionSingleDateDelegate {
     func dateSelection(_ selection: UICalendarSelectionSingleDate, canSelectDate dateComponents: DateComponents?) -> Bool {
         // 모든 날짜 선택 가능 (필요하면 제한 추가)
         return true
+    }
+}
+
+// MARK: - UICalendarViewDelegate
+extension WeightWorkoutViewController: UICalendarViewDelegate {
+    func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
+        guard let date = Calendar.current.date(from: dateComponents) else { return nil }
+
+        let realm = try! Realm()
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let results = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+
+        return results.isEmpty ? nil : .default(color: .black)
     }
 }
 
