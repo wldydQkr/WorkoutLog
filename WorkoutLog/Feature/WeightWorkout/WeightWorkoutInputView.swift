@@ -60,11 +60,17 @@ final class WeightWorkoutInputView: UIView {
     private let deleteButton = UIButton(type: .system).then {
         $0.setTitle("- 세트 삭제", for: .normal)
         $0.tintColor = .black
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = UIColor.lightGray.cgColor
+        $0.layer.cornerRadius = 6
     }
 
     private let addButton = UIButton(type: .system).then {
         $0.setTitle("+ 세트 추가", for: .normal)
         $0.tintColor = .black
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = UIColor.lightGray.cgColor
+        $0.layer.cornerRadius = 6
     }
 
     override init(frame: CGRect) {
