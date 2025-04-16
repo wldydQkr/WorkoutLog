@@ -18,25 +18,52 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
         $0.fontDesign = .rounded
     }
 
+    private let contentView = UIView().then {
+        $0.backgroundColor = UIColor.systemGray6
+        $0.layer.cornerRadius = 12
+        $0.clipsToBounds = true
+    }
+
     private let summaryLabel = UILabel().then {
         $0.text = "날짜를 선택하세요"
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .systemFont(ofSize: 16, weight: .medium)
         $0.textAlignment = .center
         $0.numberOfLines = 0
+        $0.textColor = .label
+        $0.setContentHuggingPriority(.required, for: .vertical)
+        $0.setContentCompressionResistancePriority(.required, for: .vertical)
+    }
+
+    private let exerciseListLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 14)
+        $0.textColor = .secondaryLabel
+        $0.numberOfLines = 0
+        $0.textAlignment = .center
+        $0.setContentHuggingPriority(.required, for: .vertical)
+        $0.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        self.navigationController?.navigationBar.isHidden = true
         setupUI()
 
         calendarView.delegate = self
         calendarView.selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
+
+        let today = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        (calendarView.selectionBehavior as? UICalendarSelectionSingleDate)?.setSelected(today, animated: false)
+        if let todayDate = Calendar.current.date(from: today) {
+            updateSummary(for: todayDate)
+        }
     }
 
     private func setupUI() {
         view.addSubview(calendarView)
-        view.addSubview(summaryLabel)
+        view.addSubview(contentView)
+        contentView.addSubview(summaryLabel)
+        contentView.addSubview(exerciseListLabel)
 
         calendarView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
@@ -44,9 +71,18 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
             $0.height.equalTo(calendarView.snp.width).multipliedBy(1.2)
         }
 
-        summaryLabel.snp.makeConstraints {
+        contentView.snp.makeConstraints {
             $0.top.equalTo(calendarView.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(16)
+        }
+        summaryLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(12)
+            $0.leading.trailing.equalToSuperview().inset(12)
+        }
+        exerciseListLabel.snp.makeConstraints {
+            $0.top.equalTo(summaryLabel.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview().inset(12)
+            $0.bottom.equalToSuperview().inset(12)
         }
     }
 
@@ -60,9 +96,12 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
 
         if workouts.isEmpty {
             summaryLabel.text = "해당 날짜에 기록된 운동이 없습니다."
+            exerciseListLabel.text = ""
         } else {
             let totalVolume = workouts.reduce(0.0) { $0 + ($1.weight * Double($1.repetitions)) }
             summaryLabel.text = "운동 기록 수: \(workouts.count)\n총 볼륨: \(Int(totalVolume))kg"
+            let exerciseNames = Set(workouts.map { $0.exerciseName })
+            exerciseListLabel.text = "운동 종목: " + exerciseNames.joined(separator: ", ")
         }
     }
 }

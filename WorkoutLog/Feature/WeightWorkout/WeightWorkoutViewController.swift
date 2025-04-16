@@ -126,44 +126,42 @@ class WeightWorkoutViewController: UIViewController {
     }
 
     func addInputViews(for exercises: [String]) {
-        // 운동 항목이 없으면 아무 작업도 하지 않음
         guard !exercises.isEmpty else { return }
 
-        // 날짜 선택기 이후의 모든 운동 입력 뷰 제거
-        let preservedCount = 2
-        let toRemove = contentStack.arrangedSubviews.dropFirst(preservedCount)
-        toRemove.forEach { view in
-            contentStack.removeArrangedSubview(view)
-            view.removeFromSuperview()
+        // 현재 뷰에 있는 운동 이름 추출
+        let existingViews = contentStack.arrangedSubviews.compactMap {
+            ($0 as? WeightWorkoutInputView)?.exerciseName
         }
 
-        // 중복 제거 (입력 순서 유지)
-        var seen = Set<String>()
-        let uniqueExercises = exercises.filter { seen.insert($0).inserted }
-
-        // 이미 저장된 운동이 있는지 확인 (중복 추가 방지)
+        // Realm에서 현재 날짜의 운동 이름 확인
         let realm = try! Realm()
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-
         let existingWorkouts = realm.objects(WorkoutSetObject.self)
             .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
-
         let existingExerciseNames = Set(existingWorkouts.map { $0.exerciseName })
 
-        for exercise in uniqueExercises where !existingExerciseNames.contains(exercise) {
+        // 중복 제거 후 새로운 운동만 추가
+        let uniqueExercises = exercises
+            .filter { !existingExerciseNames.contains($0) && !existingViews.contains($0) }
+
+        for exercise in uniqueExercises {
             let inputView = WeightWorkoutInputView()
             inputView.configureTitle(exercise)
             inputView.selectedDate = selectedDate
             contentStack.addArrangedSubview(inputView)
         }
-        
-        calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)], animated: true)
+
+        calendarView.reloadDecorations(
+            forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)],
+            animated: true
+        )
     }
 
     @objc private func addWorkoutTapped() {
         let selectionVC = ExerciseSelectionViewController()
+        selectionVC.selectedDate = self.selectedDate
         selectionVC.onExercisesSelected = { [weak self] selectedExercises in
             self?.addInputViews(for: selectedExercises)
             self?.navigationController?.popViewController(animated: true)

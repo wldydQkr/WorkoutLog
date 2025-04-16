@@ -23,6 +23,7 @@ class ExerciseSelectionViewController: UIViewController {
     private let tableView = UITableView()
     private var isEditingSection: Bool = false
     private var isDeleteMode: Bool = false
+    var selectedDate: Date = Date()
 
     private func ensureInitialExercises() {
         let existing = realm.objects(ExerciseObject.self)
@@ -56,6 +57,17 @@ class ExerciseSelectionViewController: UIViewController {
         self.navigationController?.navigationBar.isHidden = true
         ensureInitialExercises()
         loadExercisesFromRealm()
+
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let existing = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+            .map { $0.exerciseName }
+
+        selectedExercises = Set(existing)
+
         setupUI()
         print(Realm.Configuration.defaultConfiguration.fileURL!)
     }
@@ -137,8 +149,16 @@ class ExerciseSelectionViewController: UIViewController {
     }
 
     @objc private func doneTapped() {
-        let selected = Array(selectedExercises)
-        onExercisesSelected?(selected)
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let existing = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+            .map { $0.exerciseName }
+
+        let combinedExercises = Set(existing).union(selectedExercises)
+        onExercisesSelected?(Array(combinedExercises))
         navigationController?.popViewController(animated: true)
     }
 
@@ -217,17 +237,31 @@ extension ExerciseSelectionViewController: UITableViewDataSource, UITableViewDel
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         cell.textLabel?.text = exercise
         cell.accessoryType = selectedExercises.contains(exercise) ? .checkmark : .none
+        cell.selectionStyle = .none
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let exercise = categories[indexPath.section].exercises[indexPath.row]
+
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        let existing = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+            .map { $0.exerciseName }
+
+        if existing.contains(exercise) {
+            tableView.deselectRow(at: indexPath, animated: true)
+            return
+        }
+
         if selectedExercises.contains(exercise) {
             selectedExercises.remove(exercise)
-            tableView.deselectRow(at: indexPath, animated: true)
         } else {
             selectedExercises.insert(exercise)
         }
+
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 
