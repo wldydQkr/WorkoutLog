@@ -15,7 +15,13 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
     private let calendarView = UICalendarView().then {
         $0.calendar = Calendar(identifier: .gregorian)
         $0.locale = Locale(identifier: "ko_KR")
-        $0.fontDesign = .rounded
+        $0.fontDesign = .monospaced
+    }
+    
+    private let scrollView = UIScrollView()
+    private let scrollContentStack = UIStackView().then {
+        $0.axis = .vertical
+        $0.spacing = 20  // Previously 24, adjusted for better compactness
     }
 
     private let contentView = UIView().then {
@@ -46,7 +52,7 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        self.navigationController?.navigationBar.isHidden = true
+        navigationController?.setNavigationBarHidden(true, animated: false)
         setupUI()
 
         calendarView.delegate = self
@@ -60,29 +66,39 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
     }
 
     private func setupUI() {
-        view.addSubview(calendarView)
-        view.addSubview(contentView)
-        contentView.addSubview(summaryLabel)
-        contentView.addSubview(exerciseListLabel)
+        view.addSubview(scrollView)
+        scrollView.addSubview(scrollContentStack)
+        
+        [calendarView, contentView].forEach {
+            scrollContentStack.addArrangedSubview($0)
+        }
+        let labelStack = UIStackView(arrangedSubviews: [summaryLabel, exerciseListLabel]).then {
+            $0.axis = .vertical
+            $0.spacing = 8
+        }
+        contentView.addSubview(labelStack)
+        
+        labelStack.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(12)
+        }
 
+        scrollView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        scrollContentStack.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(16)
+            $0.width.equalToSuperview().inset(16)
+        }
+        
         calendarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.2)
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.0)
         }
 
         contentView.snp.makeConstraints {
-            $0.top.equalTo(calendarView.snp.bottom).offset(20)
-            $0.leading.trailing.equalToSuperview().inset(16)
-        }
-        summaryLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(12)
-            $0.leading.trailing.equalToSuperview().inset(12)
-        }
-        exerciseListLabel.snp.makeConstraints {
-            $0.top.equalTo(summaryLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalToSuperview().inset(12)
-            $0.bottom.equalToSuperview().inset(12)
+            $0.leading.trailing.equalToSuperview()
         }
     }
 

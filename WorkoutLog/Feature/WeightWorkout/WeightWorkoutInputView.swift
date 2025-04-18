@@ -244,7 +244,11 @@ final class WeightWorkoutInputView: UIView {
     func configure(with workout: WeightWorkout, date: Date) {
         isUpdatingFromConfiguration = true
         self.selectedDate = date
-        titleLabel.text = workout.exerciseName
+        let realm = try! Realm()
+        let category = realm.objects(ExerciseObject.self)
+            .filter("name == %@", workout.exerciseName)
+            .first?.category ?? ""
+        titleLabel.text = "\(category) | \(workout.exerciseName)"
 
         inputContainer.arrangedSubviews.forEach {
             inputContainer.removeArrangedSubview($0)
@@ -276,7 +280,11 @@ final class WeightWorkoutInputView: UIView {
     }
 
     func configureTitle(_ title: String) {
-        titleLabel.text = title
+        let realm = try! Realm()
+        let category = realm.objects(ExerciseObject.self)
+            .filter("name == %@", title)
+            .first?.category ?? ""
+        titleLabel.text = "\(category) | \(title)"
     }
 
     func saveWorkoutToRealm(date: Date) {

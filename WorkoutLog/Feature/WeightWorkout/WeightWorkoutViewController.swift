@@ -35,6 +35,14 @@ class WeightWorkoutViewController: UIViewController {
         $0.preservesSuperviewLayoutMargins = false
     }
     
+    private let emptyLabel = UILabel().then {
+        $0.text = "운동을 추가 해보세요!"
+        $0.textAlignment = .center
+        $0.textColor = .gray
+        $0.font = .systemFont(ofSize: 16, weight: .medium)
+        $0.isHidden = true
+    }
+    
     private var selectedDate: Date = Date()
 
     override func viewDidLoad() {
@@ -83,12 +91,13 @@ class WeightWorkoutViewController: UIViewController {
             $0.distribution = .equalSpacing
         }
         contentStack.addArrangedSubview(calendarView)
+        contentStack.addArrangedSubview(emptyLabel)
         
         titleLabel.text = viewModel.currentDateString
 
         calendarView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.1)
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.0)
         }
 
         let addWorkoutButton = UIButton(type: .system).then {
@@ -146,12 +155,20 @@ class WeightWorkoutViewController: UIViewController {
         let uniqueExercises = exercises
             .filter { !existingExerciseNames.contains($0) && !existingViews.contains($0) }
 
-        for exercise in uniqueExercises {
+        let sortedExercises = uniqueExercises.sorted {
+            let category0 = realm.objects(ExerciseObject.self).filter("name == %@", $0).first?.category ?? ""
+            let category1 = realm.objects(ExerciseObject.self).filter("name == %@", $1).first?.category ?? ""
+            return category0 < category1
+        }
+
+        for exercise in sortedExercises {
             let inputView = WeightWorkoutInputView()
             inputView.configureTitle(exercise)
             inputView.selectedDate = selectedDate
             contentStack.addArrangedSubview(inputView)
         }
+
+        emptyLabel.isHidden = true
 
         calendarView.reloadDecorations(
             forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)],
@@ -196,6 +213,7 @@ class WeightWorkoutViewController: UIViewController {
 
         // Realm에 데이터가 없으면 모든 InputView 제거 후 리턴
         if results.isEmpty {
+            emptyLabel.isHidden = false
             contentStack.arrangedSubviews.forEach { view in
                 if view is WeightWorkoutInputView {
                     contentStack.removeArrangedSubview(view)
@@ -228,6 +246,8 @@ class WeightWorkoutViewController: UIViewController {
             workoutView.configure(with: workout, date: date)
             contentStack.addArrangedSubview(workoutView)
         }
+        
+        emptyLabel.isHidden = true
         
         calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: date)], animated: true)
     }
