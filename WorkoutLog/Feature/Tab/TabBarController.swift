@@ -31,19 +31,19 @@ final class CustomTabBarController: UITabBarController {
 
     private func setupTabs() {
         let homeVC = UINavigationController(rootViewController: WeightWorkoutViewController())
-        homeVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "house"), tag: 0)
+        homeVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "figure.run"), tag: 0)
 
         let activityVC = UINavigationController(rootViewController: MyActivityViewController())
-        activityVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "heart.fill"), tag: 1)
+        activityVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "chart.bar.xaxis"), tag: 1)
 
         let placeholderVC = UIViewController()
         placeholderVC.tabBarItem = UITabBarItem(title: nil, image: nil, tag: 2)
 
         let locationVC = UINavigationController(rootViewController: WorkoutCalendarSummaryViewController())
-        locationVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "mappin"), tag: 3)
+        locationVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "calendar"), tag: 3)
 
         let searchVC = UINavigationController(rootViewController: MyActivityViewController())
-        searchVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "magnifyingglass"), tag: 4)
+        searchVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "person.fill"), tag: 4)
 
         viewControllers = [homeVC, activityVC, placeholderVC, locationVC, searchVC]
         tabBar.tintColor = .darkGray

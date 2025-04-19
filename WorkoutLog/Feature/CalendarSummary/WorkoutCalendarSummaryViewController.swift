@@ -12,22 +12,23 @@ import Then
 
 final class WorkoutCalendarSummaryViewController: UIViewController {
 
+    private let viewModel = WorkoutCalendarSummaryViewModel()
+    
     private let calendarView = UICalendarView().then {
-        $0.calendar = Calendar(identifier: .gregorian)
+        $0.tintColor = .black
         $0.locale = Locale(identifier: "ko_KR")
+        $0.calendar = Calendar(identifier: .gregorian)
         $0.fontDesign = .monospaced
+        $0.availableDateRange = DateInterval(start: .distantPast, end: .distantFuture)
+        $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        $0.preservesSuperviewLayoutMargins = false
     }
     
     private let scrollView = UIScrollView()
-    private let scrollContentStack = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 20  // Previously 24, adjusted for better compactness
-    }
 
-    private let contentView = UIView().then {
-        $0.backgroundColor = UIColor.systemGray6
-        $0.layer.cornerRadius = 12
-        $0.clipsToBounds = true
+    private let contentStack = UIStackView().then {
+        $0.axis = .vertical
+        $0.spacing = 16
     }
 
     private let summaryLabel = UILabel().then {
@@ -51,6 +52,7 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setTransparentStatusBar()
         view.backgroundColor = .systemBackground
         navigationController?.setNavigationBarHidden(true, animated: false)
         setupUI()
@@ -66,75 +68,78 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
     }
 
     private func setupUI() {
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
         view.addSubview(scrollView)
-        scrollView.addSubview(scrollContentStack)
-        
-        [calendarView, contentView].forEach {
-            scrollContentStack.addArrangedSubview($0)
-        }
-        let labelStack = UIStackView(arrangedSubviews: [summaryLabel, exerciseListLabel]).then {
-            $0.axis = .vertical
-            $0.spacing = 8
-        }
-        contentView.addSubview(labelStack)
-        
-        labelStack.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(12)
-        }
 
         scrollView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             $0.leading.trailing.bottom.equalToSuperview()
         }
-        
-        scrollContentStack.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(16)
-            $0.width.equalToSuperview().inset(16)
+
+        scrollView.addSubview(contentStack)
+        contentStack.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.width.equalTo(scrollView.snp.width)
         }
+
+        contentStack.addArrangedSubview(calendarView)
         
         calendarView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(calendarView.snp.width).multipliedBy(1.0)
         }
 
-        contentView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview()
+        let spacer = UIView()
+        spacer.snp.makeConstraints { $0.height.equalTo(20) }
+        contentStack.addArrangedSubview(spacer)
+
+        let labelStack = UIStackView(arrangedSubviews: [summaryLabel, exerciseListLabel]).then {
+            $0.axis = .vertical
+            $0.spacing = 8
         }
+
+        contentStack.addArrangedSubview(labelStack)
     }
 
     private func updateSummary(for date: Date) {
-        let realm = try! Realm()
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
-
-        let workouts = realm.objects(WorkoutSetObject.self)
-            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
-
-        if workouts.isEmpty {
-            summaryLabel.text = "해당 날짜에 기록된 운동이 없습니다."
-            exerciseListLabel.text = ""
-        } else {
-            let totalVolume = workouts.reduce(0.0) { $0 + ($1.weight * Double($1.repetitions)) }
-            summaryLabel.text = "운동 기록 수: \(workouts.count)\n총 볼륨: \(Int(totalVolume))kg"
-            let exerciseNames = Set(workouts.map { $0.exerciseName })
-            exerciseListLabel.text = "운동 종목: " + exerciseNames.joined(separator: ", ")
-        }
+        let result = viewModel.summary(for: date)
+        summaryLabel.text = result.summaryText
+        exerciseListLabel.text = result.exerciseList
     }
 }
+
+#if canImport(SwiftUI) && DEBUG
+import SwiftUI
+
+struct WorkoutCalendarSummaryViewController_Previews: PreviewProvider {
+    static var previews: some View {
+        UIViewControllerPreview {
+            WorkoutCalendarSummaryViewController()
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControllerRepresentable {
+    let viewController: () -> ViewController
+
+    init(_ builder: @escaping () -> ViewController) {
+        self.viewController = builder
+    }
+
+    func makeUIViewController(context: Context) -> ViewController {
+        return viewController()
+    }
+
+    func updateUIViewController(_ uiViewController: ViewController, context: Context) {}
+}
+#endif
 
 extension WorkoutCalendarSummaryViewController: UICalendarViewDelegate {
     func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
         guard let date = Calendar.current.date(from: dateComponents) else { return nil }
-
-        let realm = try! Realm()
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
-
-        let hasData = !realm.objects(WorkoutSetObject.self)
-            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
-            .isEmpty
-
-        return hasData ? .default(color: .systemBlue) : nil
+        return viewModel.hasData(on: date) ? .default(color: .black) : nil
     }
 }
 

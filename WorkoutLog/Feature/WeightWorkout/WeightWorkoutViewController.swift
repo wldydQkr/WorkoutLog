@@ -35,10 +35,20 @@ class WeightWorkoutViewController: UIViewController {
         $0.preservesSuperviewLayoutMargins = false
     }
     
+    private let scrollView = UIScrollView()
+    private let addWorkoutButton = UIButton(type: .system).then {
+        $0.setTitle("+ 운동 추가", for: .normal)
+        $0.titleLabel?.font = .boldSystemFont(ofSize: 18)
+        $0.tintColor = .white
+        $0.backgroundColor = .black
+        $0.layer.cornerRadius = 22
+    }
+    
     private var selectedDate: Date = Date()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setTransparentStatusBar()
         view.backgroundColor = .white
         self.navigationController?.navigationBar.isHidden = true
         setupUI()
@@ -123,6 +133,7 @@ class WeightWorkoutViewController: UIViewController {
         
         hideDateButton.layer.cornerRadius = 22
         hideDateButton.backgroundColor = .black
+
     }
 
     func addInputViews(for exercises: [String]) {
@@ -238,6 +249,30 @@ class WeightWorkoutViewController: UIViewController {
         calendarView.isHidden.toggle()
         let imageName = calendarView.isHidden ? "chevron.up" : "chevron.down"
         hideDateButton.setImage(UIImage(systemName: imageName), for: .normal)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let velocity = scrollView.panGestureRecognizer.velocity(in: scrollView)
+        if velocity.y < -100 {
+            UIView.animate(withDuration: 0.3) {
+//                self.addWorkoutButton.setTitle(nil, for: .normal)
+//                self.addWorkoutButton.layer.cornerRadius = self.addWorkoutButton.frame.height / 2
+//                self.addWorkoutButton.snp.updateConstraints {
+//                    $0.width.equalTo(self.addWorkoutButton.snp.height)
+//                }
+                self.addWorkoutButton.isHidden = true
+                self.view.layoutIfNeeded()
+            }
+        } else if velocity.y > 100 {
+            UIView.animate(withDuration: 0.3) {
+                self.addWorkoutButton.setTitle("+ 운동 추가", for: .normal)
+                self.addWorkoutButton.layer.cornerRadius = 22
+                self.addWorkoutButton.snp.updateConstraints {
+                    $0.width.equalTo(120)
+                }
+                self.view.layoutIfNeeded()
+            }
+        }
     }
 }
 
