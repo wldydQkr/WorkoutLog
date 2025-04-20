@@ -35,6 +35,7 @@
 		C0F3CB632DAE8BE900D3D6BF /* WorkoutCalendarSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB622DAE8BDB00D3D6BF /* WorkoutCalendarSummaryViewController.swift */; };
 		C0F3CB662DB2A3A100D3D6BF /* UIViewController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB652DB2A39D00D3D6BF /* UIViewController+.swift */; };
 		C0F3CB682DB3AF1700D3D6BF /* WorkoutCalendarSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB672DB3AF0A00D3D6BF /* WorkoutCalendarSummaryViewModel.swift */; };
+		C0F3CB6B2DB4ADF300D3D6BF /* WorkoutCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB6A2DB4ADEF00D3D6BF /* WorkoutCell.swift */; };
 		C0F594592DA552490015EA47 /* WeightWorkout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F594582DA552400015EA47 /* WeightWorkout.swift */; };
 		C0F5945B2DA552C90015EA47 /* WeightWorkoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F5945A2DA552C20015EA47 /* WeightWorkoutViewModel.swift */; };
 		C0F5945D2DA553070015EA47 /* WeightWorkoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F5945C2DA553020015EA47 /* WeightWorkoutViewController.swift */; };
@@ -74,6 +75,7 @@
 		C0F3CB622DAE8BDB00D3D6BF /* WorkoutCalendarSummaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCalendarSummaryViewController.swift; sourceTree = "<group>"; };
 		C0F3CB652DB2A39D00D3D6BF /* UIViewController+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+.swift"; sourceTree = "<group>"; };
 		C0F3CB672DB3AF0A00D3D6BF /* WorkoutCalendarSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCalendarSummaryViewModel.swift; sourceTree = "<group>"; };
+		C0F3CB6A2DB4ADEF00D3D6BF /* WorkoutCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCell.swift; sourceTree = "<group>"; };
 		C0F594582DA552400015EA47 /* WeightWorkout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkout.swift; sourceTree = "<group>"; };
 		C0F5945A2DA552C20015EA47 /* WeightWorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkoutViewModel.swift; sourceTree = "<group>"; };
 		C0F5945C2DA553020015EA47 /* WeightWorkoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkoutViewController.swift; sourceTree = "<group>"; };
@@ -260,9 +262,18 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		C0F3CB692DB4ADE900D3D6BF /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				C0F3CB6A2DB4ADEF00D3D6BF /* WorkoutCell.swift */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
 		C0F594572DA551E80015EA47 /* WeightWorkout */ = {
 			isa = PBXGroup;
 			children = (
+				C0F3CB692DB4ADE900D3D6BF /* Cell */,
 				C0F3CB5E2DA692EC00D3D6BF /* ExerciseSelection */,
 				C0F5945E2DA55A2D0015EA47 /* WeightWorkoutInputView.swift */,
 				C0F5945C2DA553020015EA47 /* WeightWorkoutViewController.swift */,
@@ -402,6 +413,7 @@
 				C0CD83112D982ED3002470D9 /* ActivityViewModel.swift in Sources */,
 				C0F3CB5D2DA692CE00D3D6BF /* ExerciseCategory.swift in Sources */,
 				C0CD83172D982F1C002470D9 /* StatisticsViewModel.swift in Sources */,
+				C0F3CB6B2DB4ADF300D3D6BF /* WorkoutCell.swift in Sources */,
 				C06AC81E2DA01349005960FF /* StepDetailViewController.swift in Sources */,
 				C0CD830C2D981F35002470D9 /* MemoDeatilViewController.swift in Sources */,
 				C0F3CB602DA6930900D3D6BF /* ExerciseSelectionViewController.swift in Sources */,

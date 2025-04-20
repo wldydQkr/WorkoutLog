@@ -11,8 +11,17 @@ import Then
 import RealmSwift
 
 // MARK: - ViewController
-class WeightWorkoutViewController: UIViewController {
+class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
     private let viewModel = WeightWorkoutViewModel()
+    private var lastContentOffset: CGFloat = 0
+    private let emptyLabel = UILabel().then {
+        $0.text = "운동 기록을 추가해보세요!"
+        $0.font = .systemFont(ofSize: 18, weight: .regular)
+        $0.textColor = .gray
+        $0.textAlignment = .center
+        $0.numberOfLines = 0
+        $0.isHidden = true
+    }
     private let titleLabel = UILabel().then {
         $0.font = .boldSystemFont(ofSize: 24)
     }
@@ -44,6 +53,12 @@ class WeightWorkoutViewController: UIViewController {
         $0.layer.cornerRadius = 22
     }
     
+    private let buttonStack = UIStackView().then {
+        $0.axis = .horizontal
+        $0.spacing = 16
+        $0.distribution = .equalSpacing
+    }
+    
     private var selectedDate: Date = Date()
 
     override func viewDidLoad() {
@@ -69,14 +84,14 @@ class WeightWorkoutViewController: UIViewController {
     }
 
     private func setupUI() {
-        let scrollView = UIScrollView()
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.showsVerticalScrollIndicator = false
         view.addSubview(scrollView)
 
         scrollView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         scrollView.addSubview(contentStack)
@@ -93,6 +108,7 @@ class WeightWorkoutViewController: UIViewController {
             $0.distribution = .equalSpacing
         }
         contentStack.addArrangedSubview(calendarView)
+        contentStack.addArrangedSubview(emptyLabel)
         
         titleLabel.text = viewModel.currentDateString
 
@@ -101,19 +117,8 @@ class WeightWorkoutViewController: UIViewController {
             $0.height.equalTo(calendarView.snp.width).multipliedBy(1.0)
         }
 
-        let addWorkoutButton = UIButton(type: .system).then {
-            $0.setTitle("+ 운동 추가", for: .normal)
-            $0.titleLabel?.font = .boldSystemFont(ofSize: 18)
-            $0.tintColor = .white
-            $0.backgroundColor = .black
-            $0.layer.cornerRadius = 22
-        }
-
-        let buttonStack = UIStackView(arrangedSubviews: [hideDateButton, addWorkoutButton]).then {
-            $0.axis = .horizontal
-            $0.spacing = 16
-            $0.distribution = .equalSpacing
-        }
+        buttonStack.addArrangedSubview(hideDateButton)
+        buttonStack.addArrangedSubview(addWorkoutButton)
         view.addSubview(buttonStack)
         buttonStack.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(20)
@@ -134,6 +139,7 @@ class WeightWorkoutViewController: UIViewController {
         hideDateButton.layer.cornerRadius = 22
         hideDateButton.backgroundColor = .black
 
+        scrollView.delegate = self
     }
 
     func addInputViews(for exercises: [String]) {
@@ -197,30 +203,22 @@ class WeightWorkoutViewController: UIViewController {
             view.removeFromSuperview()
         }
 
-        // Realm에서 선택된 날짜의 운동 데이터 조회
-        let realm = try! Realm()
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        // Retrieve workout groups from view model
+        let grouped = viewModel.workoutGroups(for: date)
 
-        let results = realm.objects(WorkoutSetObject.self)
-            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
-            .sorted(byKeyPath: "sets")
-
-        // Realm에 데이터가 없으면 모든 InputView 제거 후 리턴
-        if results.isEmpty {
+        // If no workouts exist, remove all WeightWorkoutInputView and return
+        if grouped.isEmpty {
             contentStack.arrangedSubviews.forEach { view in
                 if view is WeightWorkoutInputView {
                     contentStack.removeArrangedSubview(view)
                     view.removeFromSuperview()
                 }
             }
+            emptyLabel.isHidden = false
             return
+        } else {
+            emptyLabel.isHidden = true
         }
-
-        guard !results.isEmpty else { return }
-
-        let grouped = Dictionary(grouping: results, by: { $0.exerciseName })
 
         // 현재 날짜의 운동 이름들만 유지하고 나머지 InputView는 제거
         let validExerciseNames = Set(grouped.keys)
@@ -233,6 +231,7 @@ class WeightWorkoutViewController: UIViewController {
             }
         }
 
+        emptyLabel.isHidden = true
         for (exerciseName, sets) in grouped {
             let workoutView = WeightWorkoutInputView()
             let workout = WeightWorkout(exerciseName: exerciseName, sets: sets.map {
@@ -252,27 +251,32 @@ class WeightWorkoutViewController: UIViewController {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let velocity = scrollView.panGestureRecognizer.velocity(in: scrollView)
-        if velocity.y < -100 {
+        let offset = scrollView.contentOffset.y
+        let maxOffset = scrollView.contentSize.height - scrollView.frame.size.height
+
+        if offset <= 0 {
+            // 최상단 도달 → 버튼 무조건 보이기
             UIView.animate(withDuration: 0.3) {
-//                self.addWorkoutButton.setTitle(nil, for: .normal)
-//                self.addWorkoutButton.layer.cornerRadius = self.addWorkoutButton.frame.height / 2
-//                self.addWorkoutButton.snp.updateConstraints {
-//                    $0.width.equalTo(self.addWorkoutButton.snp.height)
-//                }
-                self.addWorkoutButton.isHidden = true
-                self.view.layoutIfNeeded()
+                self.buttonStack.alpha = 1
             }
-        } else if velocity.y > 100 {
+        } else if offset >= maxOffset {
+            // 최하단 도달 → 버튼 무조건 숨기기
             UIView.animate(withDuration: 0.3) {
-                self.addWorkoutButton.setTitle("+ 운동 추가", for: .normal)
-                self.addWorkoutButton.layer.cornerRadius = 22
-                self.addWorkoutButton.snp.updateConstraints {
-                    $0.width.equalTo(120)
-                }
-                self.view.layoutIfNeeded()
+                self.buttonStack.alpha = 0
+            }
+        } else if offset > lastContentOffset {
+            // 아래로 스크롤 중 (탭바 방향) → 버튼 숨김
+            UIView.animate(withDuration: 0.3) {
+                self.buttonStack.alpha = 0
+            }
+        } else if offset < lastContentOffset {
+            // 위로 스크롤 중 (상태바 방향) → 버튼 보이기
+            UIView.animate(withDuration: 0.3) {
+                self.buttonStack.alpha = 1
             }
         }
+
+        lastContentOffset = offset
     }
 }
 

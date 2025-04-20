@@ -14,7 +14,7 @@ final class CustomTabBarController: UITabBarController {
         button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.backgroundColor = .white
         button.tintColor = .black
-        button.layer.cornerRadius = 35
+        button.layer.cornerRadius = 30
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOpacity = 0.2
         button.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -58,8 +58,8 @@ final class CustomTabBarController: UITabBarController {
         NSLayoutConstraint.activate([
             floatingButton.centerXAnchor.constraint(equalTo: tabBar.centerXAnchor),
             floatingButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
-            floatingButton.widthAnchor.constraint(equalToConstant: 70),
-            floatingButton.heightAnchor.constraint(equalToConstant: 70)
+            floatingButton.widthAnchor.constraint(equalToConstant: 60),
+            floatingButton.heightAnchor.constraint(equalToConstant: 60)
         ])
 
         floatingButton.addTarget(self, action: #selector(floatingButtonTapped), for: .touchUpInside)

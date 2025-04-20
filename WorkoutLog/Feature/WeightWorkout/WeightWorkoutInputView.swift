@@ -241,6 +241,27 @@ final class WeightWorkoutInputView: UIView {
         saveWorkoutToRealm(date: selectedDate)
     }
 
+    func saveWorkoutToRealm(date: Date) {
+        guard let exerciseName = titleLabel.text, !exerciseName.isEmpty else { return }
+
+        var setInfos: [WeightWorkout.SetInfo] = []
+
+        for (index, subview) in inputContainer.arrangedSubviews.enumerated() {
+            guard let stack = subview as? UIStackView,
+                  let inputFieldsStack = stack.arrangedSubviews[1] as? UIStackView,
+                  let weightField = inputFieldsStack.arrangedSubviews[0] as? UITextField,
+                  let repsField = inputFieldsStack.arrangedSubviews[2] as? UITextField,
+                  let weight = Double(weightField.text ?? ""),
+                  let reps = Int(repsField.text ?? "") else { continue }
+
+            let setInfo = WeightWorkout.SetInfo(weight: weight, reps: reps)
+            setInfos.append(setInfo)
+        }
+
+        let viewModel = WeightWorkoutViewModel()
+        viewModel.saveWorkout(exerciseName: exerciseName, setInfos: setInfos, date: date)
+    }
+
     func configure(with workout: WeightWorkout, date: Date) {
         isUpdatingFromConfiguration = true
         self.selectedDate = date
@@ -285,40 +306,5 @@ final class WeightWorkoutInputView: UIView {
             .filter("name == %@", title)
             .first?.category ?? ""
         titleLabel.text = "\(category) | \(title)"
-    }
-
-    func saveWorkoutToRealm(date: Date) {
-        let realm = try! Realm()
-
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
-
-        guard let exerciseName = titleLabel.text, !exerciseName.isEmpty else { return }
-
-        try? realm.write {
-            // Remove existing records for the same exercise and date
-            let existing = realm.objects(WorkoutSetObject.self)
-                .filter("exerciseName == %@ AND date >= %@ AND date < %@", exerciseName, startOfDay, endOfDay)
-            realm.delete(existing)
-
-            // Save new data
-            for (index, subview) in inputContainer.arrangedSubviews.enumerated() {
-                guard let stack = subview as? UIStackView,
-                      let inputFieldsStack = stack.arrangedSubviews[1] as? UIStackView,
-                      let weightField = inputFieldsStack.arrangedSubviews[0] as? UITextField,
-                      let repsField = inputFieldsStack.arrangedSubviews[2] as? UITextField,
-                      let weight = Double(weightField.text ?? ""),
-                      let reps = Int(repsField.text ?? "") else { continue }
-
-                let setObject = WorkoutSetObject()
-                setObject.exerciseName = exerciseName
-                setObject.weight = weight
-                setObject.repetitions = reps
-                setObject.sets = index + 1
-                setObject.date = date
-
-                realm.add(setObject)
-            }
-        }
     }
 }
