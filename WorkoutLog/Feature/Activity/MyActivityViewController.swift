@@ -58,11 +58,11 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
         headerView.addSubview(stackView)
         view.addSubview(headerView)
 
-        headerView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(60)
-        }
+//        headerView.snp.makeConstraints {
+//            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+//            $0.leading.trailing.equalToSuperview()
+//            $0.height.equalTo(60)
+//        }
 
         stackView.snp.makeConstraints {
             $0.centerY.equalToSuperview()
@@ -78,7 +78,8 @@ class MyActivityViewController: UIViewController, UICollectionViewDataSource, UI
         view.addSubview(collectionView)
 
         collectionView.snp.makeConstraints {
-            $0.top.equalTo(headerView.snp.bottom).offset(10)
+//            $0.top.equalTo(headerView.snp.bottom).offset(10)
+            $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.leading.equalTo(view.safeAreaLayoutGuide.snp.leading)
             $0.trailing.equalTo(view.safeAreaLayoutGuide.snp.trailing)
             $0.bottom.equalToSuperview()

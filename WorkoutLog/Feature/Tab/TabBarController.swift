@@ -14,7 +14,7 @@ final class CustomTabBarController: UITabBarController {
         button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.backgroundColor = .white
         button.tintColor = .black
-        button.layer.cornerRadius = 35
+        button.layer.cornerRadius = 30
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOpacity = 0.2
         button.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -31,19 +31,19 @@ final class CustomTabBarController: UITabBarController {
 
     private func setupTabs() {
         let homeVC = UINavigationController(rootViewController: WeightWorkoutViewController())
-        homeVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "house"), tag: 0)
+        homeVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "figure.run"), tag: 0)
 
         let activityVC = UINavigationController(rootViewController: MyActivityViewController())
-        activityVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "heart.fill"), tag: 1)
+        activityVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "chart.bar.xaxis"), tag: 1)
 
         let placeholderVC = UIViewController()
         placeholderVC.tabBarItem = UITabBarItem(title: nil, image: nil, tag: 2)
 
-        let locationVC = UINavigationController(rootViewController: MyActivityViewController())
-        locationVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "mappin"), tag: 3)
+        let locationVC = UINavigationController(rootViewController: WorkoutCalendarSummaryViewController())
+        locationVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "calendar"), tag: 3)
 
         let searchVC = UINavigationController(rootViewController: MyActivityViewController())
-        searchVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "magnifyingglass"), tag: 4)
+        searchVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "person.fill"), tag: 4)
 
         viewControllers = [homeVC, activityVC, placeholderVC, locationVC, searchVC]
         tabBar.tintColor = .darkGray
@@ -58,8 +58,8 @@ final class CustomTabBarController: UITabBarController {
         NSLayoutConstraint.activate([
             floatingButton.centerXAnchor.constraint(equalTo: tabBar.centerXAnchor),
             floatingButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
-            floatingButton.widthAnchor.constraint(equalToConstant: 70),
-            floatingButton.heightAnchor.constraint(equalToConstant: 70)
+            floatingButton.widthAnchor.constraint(equalToConstant: 60),
+            floatingButton.heightAnchor.constraint(equalToConstant: 60)
         ])
 
         floatingButton.addTarget(self, action: #selector(floatingButtonTapped), for: .touchUpInside)

@@ -10,12 +10,6 @@ import SnapKit
 import Then
 import RealmSwift
 
-class ExerciseObject: Object {
-    @Persisted(primaryKey: true) var id: ObjectId
-    @Persisted var name: String
-    @Persisted var category: String
-}
-
 class ExerciseSelectionViewController: UIViewController {
 
     private let realm = try! Realm()
@@ -23,6 +17,16 @@ class ExerciseSelectionViewController: UIViewController {
     private let tableView = UITableView()
     private var isEditingSection: Bool = false
     private var isDeleteMode: Bool = false
+    private let selectedDate: Date
+
+    init(selectedDate: Date) {
+        self.selectedDate = selectedDate
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private func ensureInitialExercises() {
         let existing = realm.objects(ExerciseObject.self)
@@ -56,6 +60,9 @@ class ExerciseSelectionViewController: UIViewController {
         self.navigationController?.navigationBar.isHidden = true
         ensureInitialExercises()
         loadExercisesFromRealm()
+
+        updateExistingExercises()
+
         setupUI()
         print(Realm.Configuration.defaultConfiguration.fileURL!)
     }
@@ -137,8 +144,16 @@ class ExerciseSelectionViewController: UIViewController {
     }
 
     @objc private func doneTapped() {
-        let selected = Array(selectedExercises)
-        onExercisesSelected?(selected)
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let existing = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+            .map { $0.exerciseName }
+
+        let combinedExercises = Set(existing).union(selectedExercises)
+        onExercisesSelected?(Array(combinedExercises))
         navigationController?.popViewController(animated: true)
     }
 
@@ -165,12 +180,17 @@ class ExerciseSelectionViewController: UIViewController {
         let addAction = UIAlertAction(title: "추가", style: .default) { _ in
             guard let name = alert.textFields?.first?.text, !name.isEmpty else { return }
 
-            let newExercise = ExerciseObject()
-            newExercise.name = name
-            newExercise.category = category
+            do {
+                let newExercise = ExerciseObject()
+                newExercise.name = name
+                newExercise.category = category
 
-            try? self.realm.write {
-                self.realm.add(newExercise)
+                try self.realm.write {
+                    self.realm.add(newExercise)
+                }
+                print("✅ 운동 저장 성공: \(name)")
+            } catch {
+                print("❌ Realm 저장 실패: \(error.localizedDescription)")
             }
 
             self.loadExercisesFromRealm()
@@ -211,18 +231,41 @@ extension ExerciseSelectionViewController: UITableViewDataSource, UITableViewDel
         let exercise = categories[indexPath.section].exercises[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         cell.textLabel?.text = exercise
-        cell.accessoryType = selectedExercises.contains(exercise) ? .checkmark : .none
+    let calendar = Calendar.current
+    let startOfDay = calendar.startOfDay(for: selectedDate)
+    let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+    let alreadyExistsToday = realm.objects(WorkoutSetObject.self)
+        .filter("exerciseName == %@ AND date >= %@ AND date < %@", exercise, startOfDay, endOfDay)
+        .count > 0
+
+    cell.accessoryType = selectedExercises.contains(exercise) ? .checkmark : .none
+    cell.selectionStyle = alreadyExistsToday ? .none : .default
+    cell.textLabel?.textColor = alreadyExistsToday ? .lightGray : .black
+    cell.isUserInteractionEnabled = !alreadyExistsToday
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let exercise = categories[indexPath.section].exercises[indexPath.row]
+
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        let alreadyExistsToday = realm.objects(WorkoutSetObject.self)
+            .filter("exerciseName == %@ AND date >= %@ AND date < %@", exercise, startOfDay, endOfDay)
+            .count > 0
+
+        if alreadyExistsToday {
+            tableView.deselectRow(at: indexPath, animated: true)
+            return
+        }
+
         if selectedExercises.contains(exercise) {
             selectedExercises.remove(exercise)
-            tableView.deselectRow(at: indexPath, animated: true)
         } else {
             selectedExercises.insert(exercise)
         }
+
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 
@@ -296,6 +339,21 @@ extension ExerciseSelectionViewController: UITableViewDataSource, UITableViewDel
         alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
         present(alert, animated: true)
     }
+    
+    
+    private func updateExistingExercises() {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let existing = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+            .map { $0.exerciseName }
+
+        selectedExercises = Set(existing)
+        tableView.reloadData()
+    }
+
 }
 
 #if DEBUG
@@ -309,7 +367,7 @@ struct ExerciseSelectionViewController_Preview: PreviewProvider {
 
     struct ExerciseSelectionViewControllerPreview: UIViewControllerRepresentable {
         func makeUIViewController(context: Context) -> UIViewController {
-            return ExerciseSelectionViewController()
+            return ExerciseSelectionViewController(selectedDate: Date())
         }
 
         func updateUIViewController(_ uiViewController: UIViewController, context: Context) {

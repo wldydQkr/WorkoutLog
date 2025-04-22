@@ -11,8 +11,17 @@ import Then
 import RealmSwift
 
 // MARK: - ViewController
-class WeightWorkoutViewController: UIViewController {
+class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
     private let viewModel = WeightWorkoutViewModel()
+    private var lastContentOffset: CGFloat = 0
+    private let emptyLabel = UILabel().then {
+        $0.text = "운동 기록을 추가해보세요!"
+        $0.font = .systemFont(ofSize: 18, weight: .regular)
+        $0.textColor = .gray
+        $0.textAlignment = .center
+        $0.numberOfLines = 0
+        $0.isHidden = true
+    }
     private let titleLabel = UILabel().then {
         $0.font = .boldSystemFont(ofSize: 24)
     }
@@ -29,14 +38,32 @@ class WeightWorkoutViewController: UIViewController {
         $0.tintColor = .black
         $0.locale = Locale(identifier: "ko_KR")
         $0.calendar = Calendar(identifier: .gregorian)
-        $0.fontDesign = .rounded
+        $0.fontDesign = .monospaced
         $0.availableDateRange = DateInterval(start: .distantPast, end: .distantFuture)
+        $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        $0.preservesSuperviewLayoutMargins = false
+    }
+    
+    private let scrollView = UIScrollView()
+    private let addWorkoutButton = UIButton(type: .system).then {
+        $0.setTitle("+ 운동 추가", for: .normal)
+        $0.titleLabel?.font = .boldSystemFont(ofSize: 18)
+        $0.tintColor = .white
+        $0.backgroundColor = .black
+        $0.layer.cornerRadius = 22
+    }
+    
+    private let buttonStack = UIStackView().then {
+        $0.axis = .horizontal
+        $0.spacing = 16
+        $0.distribution = .equalSpacing
     }
     
     private var selectedDate: Date = Date()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setTransparentStatusBar()
         view.backgroundColor = .white
         self.navigationController?.navigationBar.isHidden = true
         setupUI()
@@ -52,17 +79,19 @@ class WeightWorkoutViewController: UIViewController {
         let calendar = Calendar.current
         let dateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
         (calendarView.selectionBehavior as? UICalendarSelectionSingleDate)?.setSelected(dateComponents, animated: false)
+        
+        calendarView.delegate = self
     }
 
     private func setupUI() {
-        let scrollView = UIScrollView()
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.showsVerticalScrollIndicator = false
         view.addSubview(scrollView)
 
         scrollView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
 
         scrollView.addSubview(contentStack)
@@ -79,27 +108,17 @@ class WeightWorkoutViewController: UIViewController {
             $0.distribution = .equalSpacing
         }
         contentStack.addArrangedSubview(calendarView)
+        contentStack.addArrangedSubview(emptyLabel)
         
         titleLabel.text = viewModel.currentDateString
 
         calendarView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(300) // 기본 높이 설정
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.0)
         }
 
-        let addWorkoutButton = UIButton(type: .system).then {
-            $0.setTitle("+ 운동 추가", for: .normal)
-            $0.titleLabel?.font = .boldSystemFont(ofSize: 18)
-            $0.tintColor = .white
-            $0.backgroundColor = .black
-            $0.layer.cornerRadius = 22
-        }
-
-        let buttonStack = UIStackView(arrangedSubviews: [hideDateButton, addWorkoutButton]).then {
-            $0.axis = .horizontal
-            $0.spacing = 16
-            $0.distribution = .equalSpacing
-        }
+        buttonStack.addArrangedSubview(hideDateButton)
+        buttonStack.addArrangedSubview(addWorkoutButton)
         view.addSubview(buttonStack)
         buttonStack.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(20)
@@ -119,6 +138,8 @@ class WeightWorkoutViewController: UIViewController {
         
         hideDateButton.layer.cornerRadius = 22
         hideDateButton.backgroundColor = .black
+
+        scrollView.delegate = self
     }
 
     func addInputViews(for exercises: [String]) {
@@ -148,16 +169,26 @@ class WeightWorkoutViewController: UIViewController {
 
         let existingExerciseNames = Set(existingWorkouts.map { $0.exerciseName })
 
-        for exercise in uniqueExercises where !existingExerciseNames.contains(exercise) {
+        for exercise in uniqueExercises {
+            // 동일 날짜에 같은 운동이 이미 존재하면 추가하지 않음
+            if contentStack.arrangedSubviews.contains(where: {
+                guard let inputView = $0 as? WeightWorkoutInputView else { return false }
+                return inputView.exerciseName == exercise
+            }) {
+                continue
+            }
+
             let inputView = WeightWorkoutInputView()
             inputView.configureTitle(exercise)
             inputView.selectedDate = selectedDate
             contentStack.addArrangedSubview(inputView)
         }
+        
+        calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)], animated: true)
     }
 
     @objc private func addWorkoutTapped() {
-        let selectionVC = ExerciseSelectionViewController()
+        let selectionVC = ExerciseSelectionViewController(selectedDate: selectedDate)
         selectionVC.onExercisesSelected = { [weak self] selectedExercises in
             self?.addInputViews(for: selectedExercises)
             self?.navigationController?.popViewController(animated: true)
@@ -180,30 +211,22 @@ class WeightWorkoutViewController: UIViewController {
             view.removeFromSuperview()
         }
 
-        // Realm에서 선택된 날짜의 운동 데이터 조회
-        let realm = try! Realm()
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        // Retrieve workout groups from view model
+        let grouped = viewModel.workoutGroups(for: date)
 
-        let results = realm.objects(WorkoutSetObject.self)
-            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
-            .sorted(byKeyPath: "sets")
-
-        // Realm에 데이터가 없으면 모든 InputView 제거 후 리턴
-        if results.isEmpty {
+        // If no workouts exist, remove all WeightWorkoutInputView and return
+        if grouped.isEmpty {
             contentStack.arrangedSubviews.forEach { view in
                 if view is WeightWorkoutInputView {
                     contentStack.removeArrangedSubview(view)
                     view.removeFromSuperview()
                 }
             }
+            emptyLabel.isHidden = false
             return
+        } else {
+            emptyLabel.isHidden = true
         }
-
-        guard !results.isEmpty else { return }
-
-        let grouped = Dictionary(grouping: results, by: { $0.exerciseName })
 
         // 현재 날짜의 운동 이름들만 유지하고 나머지 InputView는 제거
         let validExerciseNames = Set(grouped.keys)
@@ -216,6 +239,7 @@ class WeightWorkoutViewController: UIViewController {
             }
         }
 
+        emptyLabel.isHidden = true
         for (exerciseName, sets) in grouped {
             let workoutView = WeightWorkoutInputView()
             let workout = WeightWorkout(exerciseName: exerciseName, sets: sets.map {
@@ -224,12 +248,43 @@ class WeightWorkoutViewController: UIViewController {
             workoutView.configure(with: workout, date: date)
             contentStack.addArrangedSubview(workoutView)
         }
+        
+        calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: date)], animated: true)
     }
 
     @objc private func toggleCalendarView() {
         calendarView.isHidden.toggle()
         let imageName = calendarView.isHidden ? "chevron.up" : "chevron.down"
         hideDateButton.setImage(UIImage(systemName: imageName), for: .normal)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offset = scrollView.contentOffset.y
+        let maxOffset = scrollView.contentSize.height - scrollView.frame.size.height
+
+        if offset <= 0 {
+            // 최상단 도달 → 버튼 무조건 보이기
+            UIView.animate(withDuration: 0.3) {
+                self.buttonStack.alpha = 1
+            }
+        } else if offset >= maxOffset {
+            // 최하단 도달 → 버튼 무조건 숨기기
+            UIView.animate(withDuration: 0.3) {
+                self.buttonStack.alpha = 0
+            }
+        } else if offset > lastContentOffset {
+            // 아래로 스크롤 중 (탭바 방향) → 버튼 숨김
+            UIView.animate(withDuration: 0.3) {
+                self.buttonStack.alpha = 0
+            }
+        } else if offset < lastContentOffset {
+            // 위로 스크롤 중 (상태바 방향) → 버튼 보이기
+            UIView.animate(withDuration: 0.3) {
+                self.buttonStack.alpha = 1
+            }
+        }
+
+        lastContentOffset = offset
     }
 }
 
@@ -245,6 +300,22 @@ extension WeightWorkoutViewController: UICalendarSelectionSingleDateDelegate {
     func dateSelection(_ selection: UICalendarSelectionSingleDate, canSelectDate dateComponents: DateComponents?) -> Bool {
         // 모든 날짜 선택 가능 (필요하면 제한 추가)
         return true
+    }
+}
+
+// MARK: - UICalendarViewDelegate
+extension WeightWorkoutViewController: UICalendarViewDelegate {
+    func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
+        guard let date = Calendar.current.date(from: dateComponents) else { return nil }
+
+        let realm = try! Realm()
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let results = realm.objects(WorkoutSetObject.self)
+            .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
+
+        return results.isEmpty ? nil : .default(color: .black)
     }
 }
 
