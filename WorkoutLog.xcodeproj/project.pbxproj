@@ -36,6 +36,8 @@
 		C0F3CB662DB2A3A100D3D6BF /* UIViewController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB652DB2A39D00D3D6BF /* UIViewController+.swift */; };
 		C0F3CB682DB3AF1700D3D6BF /* WorkoutCalendarSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB672DB3AF0A00D3D6BF /* WorkoutCalendarSummaryViewModel.swift */; };
 		C0F3CB6B2DB4ADF300D3D6BF /* WorkoutCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB6A2DB4ADEF00D3D6BF /* WorkoutCell.swift */; };
+		C0F3CB6E2DB4B7DF00D3D6BF /* WorkoutSetObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB6D2DB4B7D800D3D6BF /* WorkoutSetObject.swift */; };
+		C0F3CB702DB4B8CA00D3D6BF /* ExerciseObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F3CB6F2DB4B8BB00D3D6BF /* ExerciseObject.swift */; };
 		C0F594592DA552490015EA47 /* WeightWorkout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F594582DA552400015EA47 /* WeightWorkout.swift */; };
 		C0F5945B2DA552C90015EA47 /* WeightWorkoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F5945A2DA552C20015EA47 /* WeightWorkoutViewModel.swift */; };
 		C0F5945D2DA553070015EA47 /* WeightWorkoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F5945C2DA553020015EA47 /* WeightWorkoutViewController.swift */; };
@@ -76,6 +78,8 @@
 		C0F3CB652DB2A39D00D3D6BF /* UIViewController+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+.swift"; sourceTree = "<group>"; };
 		C0F3CB672DB3AF0A00D3D6BF /* WorkoutCalendarSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCalendarSummaryViewModel.swift; sourceTree = "<group>"; };
 		C0F3CB6A2DB4ADEF00D3D6BF /* WorkoutCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCell.swift; sourceTree = "<group>"; };
+		C0F3CB6D2DB4B7D800D3D6BF /* WorkoutSetObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSetObject.swift; sourceTree = "<group>"; };
+		C0F3CB6F2DB4B8BB00D3D6BF /* ExerciseObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseObject.swift; sourceTree = "<group>"; };
 		C0F594582DA552400015EA47 /* WeightWorkout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkout.swift; sourceTree = "<group>"; };
 		C0F5945A2DA552C20015EA47 /* WeightWorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkoutViewModel.swift; sourceTree = "<group>"; };
 		C0F5945C2DA553020015EA47 /* WeightWorkoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightWorkoutViewController.swift; sourceTree = "<group>"; };
@@ -159,6 +163,7 @@
 		C0CD82FF2D981DE4002470D9 /* WorkoutLog */ = {
 			isa = PBXGroup;
 			children = (
+				C0F3CB6C2DB4B7D100D3D6BF /* DB */,
 				C0F3CB642DB2A39600D3D6BF /* Extensions */,
 				C06AC81A2D9ED536005960FF /* Manager */,
 				C06AC8192D9ED396005960FF /* WorkoutLog.entitlements */,
@@ -268,6 +273,15 @@
 				C0F3CB6A2DB4ADEF00D3D6BF /* WorkoutCell.swift */,
 			);
 			path = Cell;
+			sourceTree = "<group>";
+		};
+		C0F3CB6C2DB4B7D100D3D6BF /* DB */ = {
+			isa = PBXGroup;
+			children = (
+				C0F3CB6F2DB4B8BB00D3D6BF /* ExerciseObject.swift */,
+				C0F3CB6D2DB4B7D800D3D6BF /* WorkoutSetObject.swift */,
+			);
+			path = DB;
 			sourceTree = "<group>";
 		};
 		C0F594572DA551E80015EA47 /* WeightWorkout */ = {
@@ -412,6 +426,7 @@
 				C0CD83022D981DE4002470D9 /* ViewController.swift in Sources */,
 				C0CD83112D982ED3002470D9 /* ActivityViewModel.swift in Sources */,
 				C0F3CB5D2DA692CE00D3D6BF /* ExerciseCategory.swift in Sources */,
+				C0F3CB6E2DB4B7DF00D3D6BF /* WorkoutSetObject.swift in Sources */,
 				C0CD83172D982F1C002470D9 /* StatisticsViewModel.swift in Sources */,
 				C0F3CB6B2DB4ADF300D3D6BF /* WorkoutCell.swift in Sources */,
 				C06AC81E2DA01349005960FF /* StepDetailViewController.swift in Sources */,
@@ -430,6 +445,7 @@
 				C0F3CB682DB3AF1700D3D6BF /* WorkoutCalendarSummaryViewModel.swift in Sources */,
 				C0CD830A2D981EA2002470D9 /* MemoManager.swift in Sources */,
 				C0CD831B2D982F51002470D9 /* StatisticsViewController.swift in Sources */,
+				C0F3CB702DB4B8CA00D3D6BF /* ExerciseObject.swift in Sources */,
 				C06AC81C2D9ED552005960FF /* HealthManager.swift in Sources */,
 				C0F5945D2DA553070015EA47 /* WeightWorkoutViewController.swift in Sources */,
 			);

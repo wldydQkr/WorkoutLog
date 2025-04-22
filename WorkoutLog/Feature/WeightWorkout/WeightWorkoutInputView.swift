@@ -7,18 +7,10 @@
 
 import UIKit
 import RealmSwift
-
-class WorkoutSetObject: Object {
-    @Persisted(primaryKey: true) var id: ObjectId
-    @Persisted var exerciseName: String
-    @Persisted var weight: Double
-    @Persisted var repetitions: Int
-    @Persisted var sets: Int
-    @Persisted var date: Date
-}
+import SnapKit
+import Then
 
 final class WeightWorkoutInputView: UIView {
-
     var onUpdate: ((Int, Int, Double) -> Void)?
     var onRemove: (() -> Void)?
 
@@ -28,16 +20,7 @@ final class WeightWorkoutInputView: UIView {
         return titleLabel.text
     }
 
-    private var setCount: Int = 1 {
-        didSet {
-            for (index, subview) in inputContainer.arrangedSubviews.enumerated() {
-                if let stack = subview as? UIStackView,
-                   let label = stack.arrangedSubviews.first as? UILabel {
-                    label.text = "\(index + 1)세트"
-                }
-            }
-        }
-    }
+    private var inputData: [WeightWorkout.SetInfo] = [WeightWorkout.SetInfo(weight: 0, reps: 0)]
 
     private var isUpdatingFromConfiguration: Bool = false
 
@@ -47,10 +30,8 @@ final class WeightWorkoutInputView: UIView {
         $0.titleLabel?.font = .systemFont(ofSize: 20)
     }
 
-    private let inputContainer = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 0
-    }
+    private let tableView = UITableView()
+    private var tableViewHeightConstraint: Constraint?
 
     private let titleLabel = UILabel().then {
         $0.text = nil
@@ -76,15 +57,11 @@ final class WeightWorkoutInputView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
-        setupBindings()
-        addSet() // 초기 세트 추가
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupUI()
-        setupBindings()
-        addSet() // 초기 세트 추가
     }
 
     private func setupUI() {
@@ -97,7 +74,15 @@ final class WeightWorkoutInputView: UIView {
             $0.distribution = .equalSpacing
         }
 
-        // (delete it entirely)
+        tableView.register(WorkoutCell.self, forCellReuseIdentifier: "WorkoutCell")
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.isScrollEnabled = false
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 60
+        tableView.snp.makeConstraints {
+            self.tableViewHeightConstraint = $0.height.equalTo(60).priority(.low).constraint
+        }
 
         let buttonStack = UIStackView(arrangedSubviews: [
             deleteButton,
@@ -107,10 +92,14 @@ final class WeightWorkoutInputView: UIView {
             $0.spacing = 16
             $0.distribution = .fillEqually
         }
+        
+        addButton.addTarget(self, action: #selector(addSet), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteSet), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(removeSelf), for: .touchUpInside)
 
         let mainStack = UIStackView(arrangedSubviews: [
             headerStack,
-            inputContainer,
+            tableView,
             buttonStack
         ]).then {
             $0.axis = .vertical
@@ -126,89 +115,25 @@ final class WeightWorkoutInputView: UIView {
         }
     }
 
-    private func createInputStack() -> UIStackView {
-        let setLabel = UILabel().then {
-            $0.text = "\(setCount)세트"
-            $0.font = .systemFont(ofSize: 16)
-        }
-
-        let weightTextField = UITextField().then {
-            $0.placeholder = "0"
-            $0.keyboardType = .numberPad
-            $0.textAlignment = .center
-            $0.backgroundColor = .systemGray6
-            $0.layer.cornerRadius = 10
-            $0.snp.makeConstraints { $0.width.equalTo(60); $0.height.equalTo(36) }
-            $0.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        }
-
-        let kgLabel = UILabel().then {
-            $0.text = "kg"
-            $0.font = .systemFont(ofSize: 16)
-        }
-
-        let repsTextField = UITextField().then {
-            $0.placeholder = "0"
-            $0.keyboardType = .numberPad
-            $0.textAlignment = .center
-            $0.backgroundColor = .systemGray6
-            $0.layer.cornerRadius = 10
-            $0.snp.makeConstraints { $0.width.equalTo(60); $0.height.equalTo(36) }
-            $0.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        }
-
-        let repsLabel = UILabel().then {
-            $0.text = "회"
-            $0.font = .systemFont(ofSize: 16)
-        }
-
-        let inputFieldsStack = UIStackView(arrangedSubviews: [
-            weightTextField,
-            kgLabel,
-            repsTextField,
-            repsLabel
-        ]).then {
-            $0.axis = .horizontal
-            $0.spacing = 4
-            $0.alignment = .center
-            $0.distribution = .fill
-        }
-
-        let mainStack = UIStackView(arrangedSubviews: [
-            setLabel,
-            inputFieldsStack
-        ]).then {
-            $0.axis = .horizontal
-            $0.spacing = 8
-            $0.alignment = .center
-            $0.distribution = .fill
-        }
-
-        mainStack.layoutMargins = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
-        mainStack.isLayoutMarginsRelativeArrangement = true
-
-        return mainStack
-    }
-
-    private func setupBindings() {
-        addButton.addTarget(self, action: #selector(addSet), for: .touchUpInside)
-        deleteButton.addTarget(self, action: #selector(deleteSet), for: .touchUpInside)
-        closeButton.addTarget(self, action: #selector(removeSelf), for: .touchUpInside)
+    private func updateTableViewHeight() {
+        tableView.layoutIfNeeded()
+        let contentHeight = tableView.contentSize.height
+        tableViewHeightConstraint?.update(offset: contentHeight)
     }
 
     @objc private func addSet() {
-        let newInputStack = createInputStack()
-        inputContainer.addArrangedSubview(newInputStack)
-        setCount = inputContainer.arrangedSubviews.count
+        inputData.append(WeightWorkout.SetInfo(weight: 0, reps: 0))
+        tableView.reloadData()
+        updateTableViewHeight()
+        saveWorkoutToRealm(date: selectedDate)
     }
 
     @objc private func deleteSet() {
-        guard setCount > 1 else { return }
-        if let lastInputStack = inputContainer.arrangedSubviews.last {
-            inputContainer.removeArrangedSubview(lastInputStack)
-            lastInputStack.removeFromSuperview()
-            setCount -= 1
-        }
+        guard inputData.count > 1 else { return }
+        inputData.removeLast()
+        tableView.reloadData()
+        updateTableViewHeight()
+        saveWorkoutToRealm(date: selectedDate)
     }
 
     @objc private func removeSelf() {
@@ -220,7 +145,9 @@ final class WeightWorkoutInputView: UIView {
         let alert = UIAlertController(title: "삭제 확인", message: "정말로 삭제하시겠습니까?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
+            self.deleteWorkoutFromRealm(date: self.selectedDate)
             self.removeFromSuperview()
+            self.onRemove?()
         }))
         viewController.present(alert, animated: true, completion: nil)
     }
@@ -236,30 +163,53 @@ final class WeightWorkoutInputView: UIView {
         return nil
     }
 
+    private func deleteWorkoutFromRealm(date: Date) {
+        guard let fullTitle = titleLabel.text else { return }
+        let exerciseName = fullTitle.contains("|") ? fullTitle.components(separatedBy: "|").last?.trimmingCharacters(in: .whitespaces) : fullTitle
+        guard let name = exerciseName, !name.isEmpty else { return }
+
+        let realm = try! Realm()
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        let objectsToDelete = realm.objects(WorkoutSetObject.self)
+            .filter("exerciseName == %@ AND date >= %@ AND date < %@", name, startOfDay, endOfDay)
+
+        try? realm.write {
+            realm.delete(objectsToDelete)
+        }
+    }
+
     @objc private func textFieldDidChange() {
         guard !isUpdatingFromConfiguration else { return }
         saveWorkoutToRealm(date: selectedDate)
     }
 
     func saveWorkoutToRealm(date: Date) {
-        guard let exerciseName = titleLabel.text, !exerciseName.isEmpty else { return }
+        guard let fullTitle = titleLabel.text else { return }
+        let exerciseName = fullTitle.contains("|") ? fullTitle.components(separatedBy: "|").last?.trimmingCharacters(in: .whitespaces) : fullTitle
+        guard let name = exerciseName, !name.isEmpty else { return }
 
-        var setInfos: [WeightWorkout.SetInfo] = []
+        let realm = try! Realm()
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
 
-        for (index, subview) in inputContainer.arrangedSubviews.enumerated() {
-            guard let stack = subview as? UIStackView,
-                  let inputFieldsStack = stack.arrangedSubviews[1] as? UIStackView,
-                  let weightField = inputFieldsStack.arrangedSubviews[0] as? UITextField,
-                  let repsField = inputFieldsStack.arrangedSubviews[2] as? UITextField,
-                  let weight = Double(weightField.text ?? ""),
-                  let reps = Int(repsField.text ?? "") else { continue }
+        let existingObjects = realm.objects(WorkoutSetObject.self)
+            .filter("exerciseName == %@ AND date >= %@ AND date < %@", name, startOfDay, endOfDay)
 
-            let setInfo = WeightWorkout.SetInfo(weight: weight, reps: reps)
-            setInfos.append(setInfo)
+        try? realm.write {
+            realm.delete(existingObjects)
+
+            for (index, set) in inputData.enumerated() {
+                let workout = WorkoutSetObject()
+                workout.exerciseName = name
+                workout.weight = set.weight
+                workout.repetitions = set.reps
+                workout.sets = index + 1
+                workout.date = startOfDay
+                realm.add(workout)
+            }
         }
-
-        let viewModel = WeightWorkoutViewModel()
-        viewModel.saveWorkout(exerciseName: exerciseName, setInfos: setInfos, date: date)
     }
 
     func configure(with workout: WeightWorkout, date: Date) {
@@ -271,40 +221,39 @@ final class WeightWorkoutInputView: UIView {
             .first?.category ?? ""
         titleLabel.text = "\(category) | \(workout.exerciseName)"
 
-        inputContainer.arrangedSubviews.forEach {
-            inputContainer.removeArrangedSubview($0)
-            $0.removeFromSuperview()
-        }
-
-        setCount = workout.sets.count
-
-        for (index, set) in workout.sets.enumerated() {
-            let inputStack = createInputStack()
-
-            if let label = inputStack.arrangedSubviews[0] as? UILabel {
-                label.text = "\(index + 1)세트"
-            }
-
-            if let inputFieldsStack = inputStack.arrangedSubviews[1] as? UIStackView,
-               inputFieldsStack.arrangedSubviews.count >= 3,
-               let weightField = inputFieldsStack.arrangedSubviews[0] as? UITextField,
-               let repsField = inputFieldsStack.arrangedSubviews[2] as? UITextField {
-
-                weightField.text = "\(Int(set.weight))"
-                repsField.text = "\(set.reps)"
-            }
-
-            inputContainer.addArrangedSubview(inputStack)
-        }
+        let objects = realm.objects(WorkoutSetObject.self)
+            .filter("exerciseName == %@ AND date >= %@ AND date < %@", workout.exerciseName, date, Calendar.current.date(byAdding: .day, value: 1, to: date)!)
+            .sorted(byKeyPath: "sets", ascending: true)
+        self.inputData = objects.map { WeightWorkout.SetInfo(weight: $0.weight, reps: $0.repetitions) }
+        tableView.reloadData()
+        layoutIfNeeded()
+        updateTableViewHeight()
 
         isUpdatingFromConfiguration = false
     }
 
     func configureTitle(_ title: String) {
-        let realm = try! Realm()
-        let category = realm.objects(ExerciseObject.self)
-            .filter("name == %@", title)
-            .first?.category ?? ""
-        titleLabel.text = "\(category) | \(title)"
+        if !title.contains("|") {
+            titleLabel.text = title
+        }
+    }
+}
+
+extension WeightWorkoutInputView: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return inputData.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "WorkoutCell", for: indexPath) as? WorkoutCell else {
+            return UITableViewCell()
+        }
+        let setInfo = inputData[indexPath.row]
+        cell.configure(set: indexPath.row + 1, weight: setInfo.weight, reps: setInfo.reps)
+        cell.onUpdate = { [weak self] weight, reps in
+            self?.inputData[indexPath.row] = WeightWorkout.SetInfo(weight: weight, reps: reps)
+            self?.saveWorkoutToRealm(date: self?.selectedDate ?? Date())
+        }
+        return cell
     }
 }

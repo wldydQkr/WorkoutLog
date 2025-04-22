@@ -169,7 +169,15 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
 
         let existingExerciseNames = Set(existingWorkouts.map { $0.exerciseName })
 
-        for exercise in uniqueExercises where !existingExerciseNames.contains(exercise) {
+        for exercise in uniqueExercises {
+            // 동일 날짜에 같은 운동이 이미 존재하면 추가하지 않음
+            if contentStack.arrangedSubviews.contains(where: {
+                guard let inputView = $0 as? WeightWorkoutInputView else { return false }
+                return inputView.exerciseName == exercise
+            }) {
+                continue
+            }
+
             let inputView = WeightWorkoutInputView()
             inputView.configureTitle(exercise)
             inputView.selectedDate = selectedDate
@@ -180,7 +188,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
     }
 
     @objc private func addWorkoutTapped() {
-        let selectionVC = ExerciseSelectionViewController()
+        let selectionVC = ExerciseSelectionViewController(selectedDate: selectedDate)
         selectionVC.onExercisesSelected = { [weak self] selectedExercises in
             self?.addInputViews(for: selectedExercises)
             self?.navigationController?.popViewController(animated: true)
