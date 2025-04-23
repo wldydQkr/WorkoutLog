@@ -69,6 +69,13 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         setupUI()
         setupCalendar()
         updateSelectedDate(selectedDate)
+        // Keyboard notification observers 등록
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        // 화면 터치 시 키보드 내리기 위한 제스처 변수
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupCalendar() {
@@ -350,3 +357,22 @@ struct WeightWorkoutViewController_Preview: PreviewProvider {
     }
 }
 #endif
+
+// MARK: - Keyboard Handling
+private extension WeightWorkoutViewController {
+    @objc func keyboardWillShow(notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let bottomInset = keyboardFrame.height
+        scrollView.contentInset.bottom = bottomInset
+        scrollView.verticalScrollIndicatorInsets.bottom = bottomInset
+    }
+
+    @objc func keyboardWillHide(notification: Notification) {
+        scrollView.contentInset.bottom = 0
+        scrollView.verticalScrollIndicatorInsets.bottom = 0
+    }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}

@@ -78,11 +78,17 @@ final class WorkoutCell: UITableViewCell {
             $0.alignment = .fill
         }
 
-        let mainStack = UIStackView(arrangedSubviews: [setLabel, inputStack]).then {
+        let rowStack = UIStackView(arrangedSubviews: [setLabel, inputStack]).then {
             $0.axis = .horizontal
             $0.spacing = 12
             $0.alignment = .center
-            $0.distribution = .fill
+            $0.distribution = .equalSpacing
+        }
+
+        let mainStack = UIStackView(arrangedSubviews: [rowStack]).then {
+            $0.axis = .vertical
+            $0.spacing = 4
+            $0.alignment = .fill
         }
 
         contentView.addSubview(mainStack)
@@ -96,8 +102,14 @@ final class WorkoutCell: UITableViewCell {
         mainStack.setContentHuggingPriority(.required, for: .vertical)
         mainStack.setContentCompressionResistancePriority(.required, for: .vertical)
 
-        weightField.snp.makeConstraints { $0.height.equalTo(36) }
-        repsField.snp.makeConstraints { $0.height.equalTo(36) }
+        weightField.snp.makeConstraints {
+            $0.width.equalTo(80)
+            $0.height.equalTo(36)
+        }
+        repsField.snp.makeConstraints {
+            $0.width.equalTo(80)
+            $0.height.equalTo(36)
+        }
     }
 
     private func setupBindings() {
@@ -114,7 +126,7 @@ final class WorkoutCell: UITableViewCell {
 
     func configure(set: Int, weight: Double, reps: Int) {
         setLabel.text = "\(set)세트"
-        weightField.text = weight == 0 ? "" : "\(weight)"
+        weightField.text = weight == 0 ? "" : (weight.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(weight))" : "\(weight)")
         repsField.text = reps == 0 ? "" : "\(reps)"
     }
 }
