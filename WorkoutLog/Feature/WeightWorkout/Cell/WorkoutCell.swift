@@ -32,6 +32,18 @@ final class WorkoutCell: UITableViewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
+    private let kgLabel = UILabel().then {
+        $0.text = "kg"
+        $0.font = .systemFont(ofSize: 14)
+        $0.textColor = .darkGray
+    }
+
+    private let repsLabel = UILabel().then {
+        $0.text = "회"
+        $0.font = .systemFont(ofSize: 14)
+        $0.textColor = .darkGray
+    }
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -47,7 +59,19 @@ final class WorkoutCell: UITableViewCell {
     private func setupUI() {
         selectionStyle = .none
 
-        let inputStack = UIStackView(arrangedSubviews: [weightField, repsField]).then {
+        let weightStack = UIStackView(arrangedSubviews: [weightField, kgLabel]).then {
+            $0.axis = .horizontal
+            $0.spacing = 4
+            $0.alignment = .center
+        }
+
+        let repsStack = UIStackView(arrangedSubviews: [repsField, repsLabel]).then {
+            $0.axis = .horizontal
+            $0.spacing = 4
+            $0.alignment = .center
+        }
+
+        let inputStack = UIStackView(arrangedSubviews: [weightStack, repsStack]).then {
             $0.axis = .horizontal
             $0.spacing = 8
             $0.distribution = .fillEqually

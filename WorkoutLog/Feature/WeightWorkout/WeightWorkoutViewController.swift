@@ -59,7 +59,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         $0.distribution = .equalSpacing
     }
     
-    private var selectedDate: Date = Date()
+    private var selectedDate: Date = Calendar.current.startOfDay(for: Date())
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -178,13 +178,21 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
                 continue
             }
 
+            let workout = WeightWorkout(
+                exerciseName: exercise,
+                sets: [WeightWorkout.SetInfo(weight: 0, reps: 0)],
+                date: selectedDate
+            )
             let inputView = WeightWorkoutInputView()
-            inputView.configureTitle(exercise)
-            inputView.selectedDate = selectedDate
+            inputView.configure(with: workout, date: selectedDate)
             contentStack.addArrangedSubview(inputView)
+//            emptyLabel.isHidden = true
         }
         
         calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)], animated: true)
+        
+        let hasWorkoutViews = contentStack.arrangedSubviews.contains(where: { $0 is WeightWorkoutInputView })
+        emptyLabel.isHidden = hasWorkoutViews
     }
 
     @objc private func addWorkoutTapped() {
@@ -250,6 +258,9 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         }
         
         calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: date)], animated: true)
+        
+        let hasWorkoutViews = contentStack.arrangedSubviews.contains(where: { $0 is WeightWorkoutInputView })
+        emptyLabel.isHidden = hasWorkoutViews
     }
 
     @objc private func toggleCalendarView() {
