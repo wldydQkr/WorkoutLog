@@ -80,6 +80,7 @@ final class WeightWorkoutInputView: UIView {
         tableView.isScrollEnabled = false
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
+        tableView.separatorStyle = .none
         tableView.snp.makeConstraints {
             self.tableViewHeightConstraint = $0.height.equalTo(60).priority(.low).constraint
         }
@@ -116,9 +117,12 @@ final class WeightWorkoutInputView: UIView {
     }
 
     private func updateTableViewHeight() {
-        tableView.layoutIfNeeded()
-        let contentHeight = tableView.contentSize.height
-        tableViewHeightConstraint?.update(offset: contentHeight)
+        DispatchQueue.main.async {
+            self.tableView.layoutIfNeeded()
+            let contentHeight = self.tableView.contentSize.height
+            self.tableViewHeightConstraint?.update(offset: contentHeight)
+            self.superview?.layoutIfNeeded()
+        }
     }
 
     @objc private func addSet() {
