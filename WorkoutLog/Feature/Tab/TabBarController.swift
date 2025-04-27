@@ -42,7 +42,7 @@ final class CustomTabBarController: UITabBarController {
         let locationVC = UINavigationController(rootViewController: WorkoutCalendarSummaryViewController())
         locationVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "calendar"), tag: 3)
 
-        let searchVC = UINavigationController(rootViewController: MyActivityViewController())
+        let searchVC = UINavigationController(rootViewController: WorkoutChartDetailViewController(exerciseName: "벤치 프레스"))
         searchVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "person.fill"), tag: 4)
 
         viewControllers = [homeVC, activityVC, placeholderVC, locationVC, searchVC]

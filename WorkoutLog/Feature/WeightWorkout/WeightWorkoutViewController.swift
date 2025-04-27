@@ -190,8 +190,12 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
                 sets: [WeightWorkout.SetInfo(weight: 0, reps: 0)],
                 date: selectedDate
             )
+            // addInputViews 메소드 수정
             let inputView = WeightWorkoutInputView()
             inputView.configure(with: workout, date: selectedDate)
+            // 제스처 등록 부분 제거, 대신 UIControl 이벤트 연결
+            inputView.addTarget(self, action: #selector(handleInputViewTapped(_:)), for: .touchUpInside)
+            inputView.isUserInteractionEnabled = true
             contentStack.addArrangedSubview(inputView)
 //            emptyLabel.isHidden = true
         }
@@ -200,6 +204,21 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         
         let hasWorkoutViews = contentStack.arrangedSubviews.contains(where: { $0 is WeightWorkoutInputView })
         emptyLabel.isHidden = hasWorkoutViews
+    }
+
+    // 기존 제스처 핸들러는 더 이상 사용하지 않음
+    @objc private func handleInputViewTapped(_ sender: UIControl) {
+        guard let inputView = sender as? WeightWorkoutInputView else {
+            print("⚠️ sender is not WeightWorkoutInputView")
+            return
+        }
+        guard let exerciseName = inputView.exerciseName else {
+            print("⚠️ exerciseName is nil")
+            return
+        }
+        print("✅ Navigating to chart for exercise:", exerciseName)
+        let chartVC = WorkoutChartDetailViewController(exerciseName: exerciseName)
+        navigationController?.pushViewController(chartVC, animated: true)
     }
 
     @objc private func addWorkoutTapped() {
@@ -261,6 +280,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
                 WeightWorkout.SetInfo(weight: $0.weight, reps: $0.repetitions)
             }, date: date)
             workoutView.configure(with: workout, date: date)
+            workoutView.addTarget(self, action: #selector(handleInputViewTapped(_:)), for: .touchUpInside)
             contentStack.addArrangedSubview(workoutView)
         }
         
