@@ -21,7 +21,7 @@ class WorkoutChartDetailViewController: UIViewController {
         $0.textAlignment = .center
     }
 
-    private let lineChartView = LineChartView()
+    private let barChartView = BarChartView()
 
     init(exerciseName: String) {
         self.exerciseName = exerciseName
@@ -42,7 +42,7 @@ class WorkoutChartDetailViewController: UIViewController {
 
     private func setupUI() {
         view.addSubview(titleLabel)
-        view.addSubview(lineChartView)
+        view.addSubview(barChartView)
 
         titleLabel.text = "\(exerciseName) 기록"
         titleLabel.snp.makeConstraints {
@@ -50,7 +50,7 @@ class WorkoutChartDetailViewController: UIViewController {
             $0.leading.trailing.equalToSuperview().inset(20)
         }
 
-        lineChartView.snp.makeConstraints {
+        barChartView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview().inset(20)
             $0.height.equalTo(view.snp.width)
@@ -75,23 +75,33 @@ class WorkoutChartDetailViewController: UIViewController {
     }
 
     private func updateChartData() {
-        var entries: [ChartDataEntry] = []
-        for (index, data) in chartData.enumerated() {
-            entries.append(ChartDataEntry(x: Double(index), y: data.maxWeight))
+        var entries: [BarChartDataEntry] = []
+        for data in chartData {
+            let xValue = data.date.timeIntervalSince1970
+            entries.append(BarChartDataEntry(x: xValue, y: data.maxWeight))
         }
 
-        let dataSet = LineChartDataSet(entries: entries, label: "최고 중량 (kg)")
-        dataSet.colors = [.systemBlue]
-        dataSet.circleColors = [.systemBlue]
-        dataSet.circleRadius = 4
-        dataSet.lineWidth = 2
+        let dataSet = BarChartDataSet(entries: entries, label: "최고 중량 (kg)")
+        dataSet.colors = [UIColor.systemBlue]
         dataSet.valueFont = .systemFont(ofSize: 12, weight: .medium)
-        dataSet.mode = .cubicBezier
 
-        let lineData = LineChartData(dataSet: dataSet)
-        lineChartView.data = lineData
-        lineChartView.xAxis.labelPosition = .bottom
-        lineChartView.xAxis.drawGridLinesEnabled = false
-        lineChartView.rightAxis.enabled = false
+        let barData = BarChartData(dataSet: dataSet)
+        barData.barWidth = 24 * 60 * 60 // 하루 간격
+
+        barChartView.data = barData
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd"
+
+        barChartView.xAxis.valueFormatter = DefaultAxisValueFormatter { (value, axis) -> String in
+            let date = Date(timeIntervalSince1970: value)
+            return formatter.string(from: date)
+        }
+        barChartView.xAxis.labelPosition = .bottom
+        barChartView.xAxis.drawGridLinesEnabled = false
+        barChartView.rightAxis.enabled = false
+        barChartView.leftAxis.axisMinimum = 0
+
+        barChartView.animate(yAxisDuration: 0.5)
     }
 }
