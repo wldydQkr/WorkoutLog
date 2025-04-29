@@ -26,7 +26,6 @@ class WorkoutChartDetailViewController: UIViewController {
     init(exerciseName: String) {
         self.exerciseName = exerciseName
         super.init(nibName: nil, bundle: nil)
-        fetchWorkoutData()
     }
 
     required init?(coder: NSCoder) {
@@ -37,6 +36,7 @@ class WorkoutChartDetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
+        fetchWorkoutData()
         updateChartData()
     }
 
@@ -44,7 +44,11 @@ class WorkoutChartDetailViewController: UIViewController {
         view.addSubview(titleLabel)
         view.addSubview(barChartView)
 
-        titleLabel.text = "\(exerciseName) 기록"
+        let trimmedExerciseName = exerciseName
+            .components(separatedBy: "|").last?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? exerciseName
+        
+        titleLabel.text = "\(trimmedExerciseName) 기록"
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
             $0.leading.trailing.equalToSuperview().inset(20)
@@ -58,9 +62,20 @@ class WorkoutChartDetailViewController: UIViewController {
     }
 
     private func fetchWorkoutData() {
+        print("넘어온 exerciseName: \(exerciseName)")
         let realm = try! Realm()
-        let results = realm.objects(WorkoutSetObject.self).filter("exerciseName == %@", exerciseName)
-
+        print("전체 WorkoutSetObject 확인 시작")
+        for workout in realm.objects(WorkoutSetObject.self) {
+            print("운동 이름: \(workout.exerciseName), 날짜: \(workout.date), 무게: \(workout.weight)")
+        }
+        print("전체 WorkoutSetObject 확인 끝")
+        let trimmedExerciseName = exerciseName
+            .components(separatedBy: "|").last?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? exerciseName
+        let results = realm.objects(WorkoutSetObject.self).filter("exerciseName == %@", trimmedExerciseName)
+        print("Realm results:", results.description)
+        print("Realm results count:", results.count)
+        
         var weightByDate: [Date: Double] = [:]
         let calendar = Calendar.current
 
@@ -72,36 +87,61 @@ class WorkoutChartDetailViewController: UIViewController {
 
         chartData = weightByDate.map { ($0.key, $0.value) }
         chartData.sort { $0.date < $1.date }
+        
+        if chartData.count > 5 {
+            chartData = Array(chartData.suffix(5))
+        }
+        
+        print("Chart Data Loaded:")
+        for item in chartData {
+            print("Date: \(item.date), Max Weight: \(item.maxWeight)")
+        }
     }
 
     private func updateChartData() {
         var entries: [BarChartDataEntry] = []
-        for data in chartData {
-            let xValue = data.date.timeIntervalSince1970
-            entries.append(BarChartDataEntry(x: xValue, y: data.maxWeight))
+        for (index, data) in chartData.enumerated() {
+            entries.append(BarChartDataEntry(x: Double(index), y: data.maxWeight))
         }
 
         let dataSet = BarChartDataSet(entries: entries, label: "최고 중량 (kg)")
         dataSet.colors = [UIColor.systemBlue]
         dataSet.valueFont = .systemFont(ofSize: 12, weight: .medium)
+        dataSet.valueFormatter = DefaultValueFormatter { (value, _, _, _) -> String in
+            let intValue = Int(value)
+            if Double(intValue) == value {
+                return "\(intValue)kg"
+            } else {
+                return "\(String(format: "%.1f", value))kg"
+            }
+        }
+        dataSet.highlightEnabled = false
 
         let barData = BarChartData(dataSet: dataSet)
-        barData.barWidth = 24 * 60 * 60 // 하루 간격
+        barData.barWidth = 0.4
 
         barChartView.data = barData
 
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd"
 
-        barChartView.xAxis.valueFormatter = DefaultAxisValueFormatter { (value, axis) -> String in
-            let date = Date(timeIntervalSince1970: value)
-            return formatter.string(from: date)
-        }
+        barChartView.xAxis.centerAxisLabelsEnabled = false
+        barChartView.xAxis.granularity = 1
+        barChartView.xAxis.labelCount = chartData.count
+        barChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: chartData.map {
+            formatter.string(from: $0.date)
+        })
         barChartView.xAxis.labelPosition = .bottom
         barChartView.xAxis.drawGridLinesEnabled = false
+        barChartView.xAxis.avoidFirstLastClippingEnabled = false
+
         barChartView.rightAxis.enabled = false
         barChartView.leftAxis.axisMinimum = 0
 
+        barChartView.legend.enabled = false
+        barChartView.drawGridBackgroundEnabled = false
+        barChartView.drawBordersEnabled = false
         barChartView.animate(yAxisDuration: 0.5)
+        barChartView.fitBars = true
     }
 }
