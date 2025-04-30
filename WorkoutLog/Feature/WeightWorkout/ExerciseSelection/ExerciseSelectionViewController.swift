@@ -193,6 +193,17 @@ class ExerciseSelectionViewController: UIViewController {
         let addAction = UIAlertAction(title: "추가", style: .default) { _ in
             guard let name = alert.textFields?.first?.text, !name.isEmpty else { return }
 
+            let duplicate = self.realm.objects(ExerciseObject.self)
+                .filter("name == %@ AND category == %@", name, category)
+                .first
+
+            if duplicate != nil {
+                let duplicateAlert = UIAlertController(title: "중복된 운동", message: "\(name)은(는) 이미 존재하는 운동입니다.", preferredStyle: .alert)
+                duplicateAlert.addAction(UIAlertAction(title: "확인", style: .default))
+                self.present(duplicateAlert, animated: true)
+                return
+            }
+
             do {
                 let newExercise = ExerciseObject()
                 newExercise.name = name
