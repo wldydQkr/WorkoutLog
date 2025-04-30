@@ -87,7 +87,7 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
         
         calendarView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.0)
+            $0.height.equalTo(UIScreen.main.bounds.width * 1.15)
         }
 
         let spacer = UIView()
@@ -108,6 +108,22 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
         exerciseListLabel.text = result.exerciseList
     }
 }
+
+extension WorkoutCalendarSummaryViewController: UICalendarViewDelegate {
+    func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
+        guard let date = Calendar.current.date(from: dateComponents) else { return nil }
+        return viewModel.hasData(on: date) ? .default(color: .black) : nil
+    }
+}
+
+extension WorkoutCalendarSummaryViewController: UICalendarSelectionSingleDateDelegate {
+    func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
+        guard let components = dateComponents,
+              let date = Calendar.current.date(from: components) else { return }
+        updateSummary(for: date)
+    }
+}
+
 
 #if canImport(SwiftUI) && DEBUG
 import SwiftUI
@@ -135,18 +151,3 @@ struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControll
     func updateUIViewController(_ uiViewController: ViewController, context: Context) {}
 }
 #endif
-
-extension WorkoutCalendarSummaryViewController: UICalendarViewDelegate {
-    func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
-        guard let date = Calendar.current.date(from: dateComponents) else { return nil }
-        return viewModel.hasData(on: date) ? .default(color: .black) : nil
-    }
-}
-
-extension WorkoutCalendarSummaryViewController: UICalendarSelectionSingleDateDelegate {
-    func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
-        guard let components = dateComponents,
-              let date = Calendar.current.date(from: components) else { return }
-        updateSummary(for: date)
-    }
-}

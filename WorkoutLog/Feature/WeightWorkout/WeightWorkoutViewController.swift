@@ -40,7 +40,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         $0.calendar = Calendar(identifier: .gregorian)
         $0.fontDesign = .monospaced
         $0.availableDateRange = DateInterval(start: .distantPast, end: .distantFuture)
-        $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 12, right: 0)
         $0.preservesSuperviewLayoutMargins = false
     }
     
@@ -109,11 +109,6 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
 
         hideDateButton.addTarget(self, action: #selector(toggleCalendarView), for: .touchUpInside)
 
-        let titleStack = UIStackView(arrangedSubviews: [titleLabel]).then {
-            $0.axis = .horizontal
-            $0.alignment = .center
-            $0.distribution = .equalSpacing
-        }
         contentStack.addArrangedSubview(calendarView)
         contentStack.addArrangedSubview(emptyLabel)
         
@@ -121,7 +116,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
 
         calendarView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.0)
+            $0.height.equalTo(UIScreen.main.bounds.width * 1.15)
         }
 
         buttonStack.addArrangedSubview(hideDateButton)

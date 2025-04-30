@@ -15,10 +15,25 @@ class WorkoutChartDetailViewController: UIViewController {
 
     private let exerciseName: String
     private var chartData: [(date: Date, maxWeight: Double)] = []
+    private let viewModel = WorkoutChartDetailViewModel()
 
+    private let headerView = UIView()
+    private let backButton = UIButton(type: .system).then {
+        let image = UIImage(systemName: "chevron.left")
+        $0.setImage(image, for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .medium)
+        $0.tintColor = .black
+        $0.addTarget(self, action: #selector(backTapped), for: .touchUpInside)
+    }
     private let titleLabel = UILabel().then {
-        $0.font = .boldSystemFont(ofSize: 24)
+        $0.font = .boldSystemFont(ofSize: 15)
         $0.textAlignment = .center
+    }
+
+    private let chartContainerView = UIView().then {
+        $0.backgroundColor = UIColor(white: 0.95, alpha: 1)
+        $0.layer.cornerRadius = 20
+        $0.layer.masksToBounds = true
     }
 
     private let barChartView = BarChartView()
@@ -41,57 +56,56 @@ class WorkoutChartDetailViewController: UIViewController {
     }
 
     private func setupUI() {
-        view.addSubview(titleLabel)
-        view.addSubview(barChartView)
+        view.addSubview(headerView)
+        headerView.addSubview(backButton)
+        headerView.addSubview(titleLabel)
+        view.addSubview(chartContainerView)
+        chartContainerView.addSubview(barChartView)
 
         let trimmedExerciseName = exerciseName
             .components(separatedBy: "|").last?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? exerciseName
         
         titleLabel.text = "\(trimmedExerciseName) 기록"
-        titleLabel.snp.makeConstraints {
+
+        headerView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
             $0.leading.trailing.equalToSuperview().inset(20)
+            $0.height.equalTo(30)
+        }
+
+        backButton.snp.makeConstraints {
+            $0.leading.centerY.equalToSuperview()
+            $0.width.height.equalTo(30)
+        }
+
+        titleLabel.snp.remakeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.centerX.equalToSuperview()
+        }
+
+        chartContainerView.snp.makeConstraints {
+            $0.top.equalTo(headerView.snp.bottom).offset(20)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
 
         barChartView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(16)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.height.equalTo(view.snp.width)
+            $0.edges.equalToSuperview().inset(16)
         }
+        
+        barChartView.pinchZoomEnabled = false
+        barChartView.doubleTapToZoomEnabled = false
+        barChartView.scaleXEnabled = false
+        barChartView.scaleYEnabled = false
+        barChartView.highlightPerTapEnabled = false
+        barChartView.highlightPerDragEnabled = false
     }
 
     private func fetchWorkoutData() {
         print("넘어온 exerciseName: \(exerciseName)")
-        let realm = try! Realm()
-        print("전체 WorkoutSetObject 확인 시작")
-        for workout in realm.objects(WorkoutSetObject.self) {
-            print("운동 이름: \(workout.exerciseName), 날짜: \(workout.date), 무게: \(workout.weight)")
-        }
-        print("전체 WorkoutSetObject 확인 끝")
-        let trimmedExerciseName = exerciseName
-            .components(separatedBy: "|").last?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? exerciseName
-        let results = realm.objects(WorkoutSetObject.self).filter("exerciseName == %@", trimmedExerciseName)
-        print("Realm results:", results.description)
-        print("Realm results count:", results.count)
-        
-        var weightByDate: [Date: Double] = [:]
-        let calendar = Calendar.current
+        chartData = viewModel.loadChartData(for: exerciseName)
 
-        for workout in results {
-            let day = calendar.startOfDay(for: workout.date)
-            let currentMax = weightByDate[day] ?? 0
-            weightByDate[day] = max(currentMax, workout.weight)
-        }
-
-        chartData = weightByDate.map { ($0.key, $0.value) }
-        chartData.sort { $0.date < $1.date }
-        
-        if chartData.count > 5 {
-            chartData = Array(chartData.suffix(5))
-        }
-        
         print("Chart Data Loaded:")
         for item in chartData {
             print("Date: \(item.date), Max Weight: \(item.maxWeight)")
@@ -105,20 +119,20 @@ class WorkoutChartDetailViewController: UIViewController {
         }
 
         let dataSet = BarChartDataSet(entries: entries, label: "최고 중량 (kg)")
-        dataSet.colors = [UIColor.systemBlue]
+        dataSet.colors = [UIColor.orange]
         dataSet.valueFont = .systemFont(ofSize: 12, weight: .medium)
-        dataSet.valueFormatter = DefaultValueFormatter { (value, _, _, _) -> String in
+        dataSet.valueFormatter = DefaultValueFormatter(block: { (value, _, _, _) -> String in
             let intValue = Int(value)
             if Double(intValue) == value {
                 return "\(intValue)kg"
             } else {
                 return "\(String(format: "%.1f", value))kg"
             }
-        }
+        })
         dataSet.highlightEnabled = false
 
         let barData = BarChartData(dataSet: dataSet)
-        barData.barWidth = 0.4
+        barData.barWidth = 0.7
 
         barChartView.data = barData
 
@@ -136,7 +150,7 @@ class WorkoutChartDetailViewController: UIViewController {
         barChartView.xAxis.avoidFirstLastClippingEnabled = false
 
         barChartView.rightAxis.enabled = false
-        barChartView.leftAxis.axisMinimum = 0
+        barChartView.leftAxis.enabled = false
 
         barChartView.legend.enabled = false
         barChartView.drawGridBackgroundEnabled = false
@@ -144,4 +158,9 @@ class WorkoutChartDetailViewController: UIViewController {
         barChartView.animate(yAxisDuration: 0.5)
         barChartView.fitBars = true
     }
+    
+    @objc private func backTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+
 }
