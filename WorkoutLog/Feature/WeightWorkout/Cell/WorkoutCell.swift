@@ -32,6 +32,18 @@ final class WorkoutCell: UITableViewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
 
+    private let kgLabel = UILabel().then {
+        $0.text = "kg"
+        $0.font = .systemFont(ofSize: 14)
+        $0.textColor = .darkGray
+    }
+
+    private let repsLabel = UILabel().then {
+        $0.text = "회"
+        $0.font = .systemFont(ofSize: 14)
+        $0.textColor = .darkGray
+    }
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -47,30 +59,57 @@ final class WorkoutCell: UITableViewCell {
     private func setupUI() {
         selectionStyle = .none
 
-        let inputStack = UIStackView(arrangedSubviews: [weightField, repsField]).then {
+        let weightStack = UIStackView(arrangedSubviews: [weightField, kgLabel]).then {
+            $0.axis = .horizontal
+            $0.spacing = 4
+            $0.alignment = .center
+        }
+
+        let repsStack = UIStackView(arrangedSubviews: [repsField, repsLabel]).then {
+            $0.axis = .horizontal
+            $0.spacing = 4
+            $0.alignment = .center
+        }
+
+        let inputStack = UIStackView(arrangedSubviews: [weightStack, repsStack]).then {
             $0.axis = .horizontal
             $0.spacing = 8
             $0.distribution = .fillEqually
             $0.alignment = .fill
         }
 
-        let mainStack = UIStackView(arrangedSubviews: [setLabel, inputStack]).then {
+        let rowStack = UIStackView(arrangedSubviews: [setLabel, inputStack]).then {
             $0.axis = .horizontal
             $0.spacing = 12
             $0.alignment = .center
-            $0.distribution = .fill
+            $0.distribution = .equalSpacing
+        }
+
+        let mainStack = UIStackView(arrangedSubviews: [rowStack]).then {
+            $0.axis = .vertical
+            $0.spacing = 4
+            $0.alignment = .fill
         }
 
         contentView.addSubview(mainStack)
         mainStack.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(16)
+            $0.top.equalToSuperview().offset(8)
+            $0.bottom.equalToSuperview().offset(-8)
+            $0.leading.equalToSuperview().offset(16)
+            $0.trailing.equalToSuperview().offset(-16)
         }
 
         mainStack.setContentHuggingPriority(.required, for: .vertical)
         mainStack.setContentCompressionResistancePriority(.required, for: .vertical)
 
-        weightField.snp.makeConstraints { $0.height.equalTo(36) }
-        repsField.snp.makeConstraints { $0.height.equalTo(36) }
+        weightField.snp.makeConstraints {
+            $0.width.equalTo(80)
+            $0.height.equalTo(36)
+        }
+        repsField.snp.makeConstraints {
+            $0.width.equalTo(80)
+            $0.height.equalTo(36)
+        }
     }
 
     private func setupBindings() {
@@ -87,7 +126,7 @@ final class WorkoutCell: UITableViewCell {
 
     func configure(set: Int, weight: Double, reps: Int) {
         setLabel.text = "\(set)세트"
-        weightField.text = weight == 0 ? "" : "\(weight)"
+        weightField.text = weight == 0 ? "" : (weight.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(weight))" : "\(weight)")
         repsField.text = reps == 0 ? "" : "\(reps)"
     }
 }

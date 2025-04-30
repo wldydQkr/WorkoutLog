@@ -152,8 +152,21 @@ class ExerciseSelectionViewController: UIViewController {
             .filter("date >= %@ AND date < %@", startOfDay, endOfDay)
             .map { $0.exerciseName }
 
-        let combinedExercises = Set(existing).union(selectedExercises)
-        onExercisesSelected?(Array(combinedExercises))
+        let newExercises = selectedExercises.subtracting(existing)
+
+        try? realm.write {
+            for name in newExercises {
+                let workout = WorkoutSetObject()
+                workout.exerciseName = name
+                workout.weight = 0
+                workout.repetitions = 0
+                workout.date = selectedDate
+                realm.add(workout)
+            }
+        }
+
+        let combined = Set(existing).union(selectedExercises)
+        onExercisesSelected?(Array(combined))
         navigationController?.popViewController(animated: true)
     }
 

@@ -40,7 +40,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         $0.calendar = Calendar(identifier: .gregorian)
         $0.fontDesign = .monospaced
         $0.availableDateRange = DateInterval(start: .distantPast, end: .distantFuture)
-        $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 12, right: 0)
         $0.preservesSuperviewLayoutMargins = false
     }
     
@@ -59,7 +59,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         $0.distribution = .equalSpacing
     }
     
-    private var selectedDate: Date = Date()
+    private var selectedDate: Date = Calendar.current.startOfDay(for: Date())
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -69,6 +69,13 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         setupUI()
         setupCalendar()
         updateSelectedDate(selectedDate)
+        // Keyboard notification observers 등록
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        // 화면 터치 시 키보드 내리기 위한 제스처 변수
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupCalendar() {
@@ -102,11 +109,6 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
 
         hideDateButton.addTarget(self, action: #selector(toggleCalendarView), for: .touchUpInside)
 
-        let titleStack = UIStackView(arrangedSubviews: [titleLabel]).then {
-            $0.axis = .horizontal
-            $0.alignment = .center
-            $0.distribution = .equalSpacing
-        }
         contentStack.addArrangedSubview(calendarView)
         contentStack.addArrangedSubview(emptyLabel)
         
@@ -114,7 +116,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
 
         calendarView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(calendarView.snp.width).multipliedBy(1.0)
+            $0.height.equalTo(UIScreen.main.bounds.width * 1.15)
         }
 
         buttonStack.addArrangedSubview(hideDateButton)
@@ -178,13 +180,40 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
                 continue
             }
 
+            let workout = WeightWorkout(
+                exerciseName: exercise,
+                sets: [WeightWorkout.SetInfo(weight: 0, reps: 0)],
+                date: selectedDate
+            )
+            // addInputViews 메소드 수정
             let inputView = WeightWorkoutInputView()
-            inputView.configureTitle(exercise)
-            inputView.selectedDate = selectedDate
+            inputView.configure(with: workout, date: selectedDate)
+            // 제스처 등록 부분 제거, 대신 UIControl 이벤트 연결
+            inputView.addTarget(self, action: #selector(handleInputViewTapped(_:)), for: .touchUpInside)
+            inputView.isUserInteractionEnabled = true
             contentStack.addArrangedSubview(inputView)
+//            emptyLabel.isHidden = true
         }
         
         calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)], animated: true)
+        
+        let hasWorkoutViews = contentStack.arrangedSubviews.contains(where: { $0 is WeightWorkoutInputView })
+        emptyLabel.isHidden = hasWorkoutViews
+    }
+
+    // 기존 제스처 핸들러는 더 이상 사용하지 않음
+    @objc private func handleInputViewTapped(_ sender: UIControl) {
+        guard let inputView = sender as? WeightWorkoutInputView else {
+            print("⚠️ sender is not WeightWorkoutInputView")
+            return
+        }
+        guard let exerciseName = inputView.exerciseName else {
+            print("⚠️ exerciseName is nil")
+            return
+        }
+        print("✅ Navigating to chart for exercise:", exerciseName)
+        let chartVC = WorkoutChartDetailViewController(exerciseName: exerciseName)
+        navigationController?.pushViewController(chartVC, animated: true)
     }
 
     @objc private func addWorkoutTapped() {
@@ -246,10 +275,14 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
                 WeightWorkout.SetInfo(weight: $0.weight, reps: $0.repetitions)
             }, date: date)
             workoutView.configure(with: workout, date: date)
+            workoutView.addTarget(self, action: #selector(handleInputViewTapped(_:)), for: .touchUpInside)
             contentStack.addArrangedSubview(workoutView)
         }
         
         calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: date)], animated: true)
+        
+        let hasWorkoutViews = contentStack.arrangedSubviews.contains(where: { $0 is WeightWorkoutInputView })
+        emptyLabel.isHidden = hasWorkoutViews
     }
 
     @objc private func toggleCalendarView() {
@@ -339,3 +372,22 @@ struct WeightWorkoutViewController_Preview: PreviewProvider {
     }
 }
 #endif
+
+// MARK: - Keyboard Handling
+private extension WeightWorkoutViewController {
+    @objc func keyboardWillShow(notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let bottomInset = keyboardFrame.height
+        scrollView.contentInset.bottom = bottomInset
+        scrollView.verticalScrollIndicatorInsets.bottom = bottomInset
+    }
+
+    @objc func keyboardWillHide(notification: Notification) {
+        scrollView.contentInset.bottom = 0
+        scrollView.verticalScrollIndicatorInsets.bottom = 0
+    }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}

@@ -10,12 +10,12 @@ import RealmSwift
 import SnapKit
 import Then
 
-final class WeightWorkoutInputView: UIView {
+final class WeightWorkoutInputView: UIControl {
     var onUpdate: ((Int, Int, Double) -> Void)?
     var onRemove: (() -> Void)?
 
     var selectedDate: Date = Date()
-    
+
     var exerciseName: String? {
         return titleLabel.text
     }
@@ -23,6 +23,8 @@ final class WeightWorkoutInputView: UIView {
     private var inputData: [WeightWorkout.SetInfo] = [WeightWorkout.SetInfo(weight: 0, reps: 0)]
 
     private var isUpdatingFromConfiguration: Bool = false
+
+    let mainHeaderStack = UIStackView()
 
     private let closeButton = UIButton(type: .system).then {
         $0.setTitle("✕", for: .normal)
@@ -63,16 +65,22 @@ final class WeightWorkoutInputView: UIView {
         super.init(coder: coder)
         setupUI()
     }
+    
+    @objc private func headerTapped() {
+        sendActions(for: .touchUpInside)
+        print("header tapped")
+    }
 
     private func setupUI() {
-        let headerStack = UIStackView(arrangedSubviews: [
-            titleLabel,
-            closeButton
-        ]).then {
-            $0.axis = .horizontal
-            $0.alignment = .center
-            $0.distribution = .equalSpacing
-        }
+        mainHeaderStack.addArrangedSubview(titleLabel)
+        mainHeaderStack.addArrangedSubview(closeButton)
+        mainHeaderStack.axis = .horizontal
+        mainHeaderStack.alignment = .center
+        mainHeaderStack.distribution = .equalSpacing
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
+        mainHeaderStack.addGestureRecognizer(tapGesture)
+        mainHeaderStack.isUserInteractionEnabled = true
 
         tableView.register(WorkoutCell.self, forCellReuseIdentifier: "WorkoutCell")
         tableView.dataSource = self
@@ -80,34 +88,27 @@ final class WeightWorkoutInputView: UIView {
         tableView.isScrollEnabled = false
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
+        tableView.separatorStyle = .none
         tableView.snp.makeConstraints {
             self.tableViewHeightConstraint = $0.height.equalTo(60).priority(.low).constraint
         }
 
-        let buttonStack = UIStackView(arrangedSubviews: [
-            deleteButton,
-            addButton
-        ]).then {
+        let buttonStack = UIStackView(arrangedSubviews: [deleteButton, addButton]).then {
             $0.axis = .horizontal
             $0.spacing = 16
             $0.distribution = .fillEqually
         }
-        
+
         addButton.addTarget(self, action: #selector(addSet), for: .touchUpInside)
         deleteButton.addTarget(self, action: #selector(deleteSet), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(removeSelf), for: .touchUpInside)
 
-        let mainStack = UIStackView(arrangedSubviews: [
-            headerStack,
-            tableView,
-            buttonStack
-        ]).then {
+        let mainStack = UIStackView(arrangedSubviews: [mainHeaderStack, tableView, buttonStack]).then {
             $0.axis = .vertical
             $0.spacing = 12
         }
 
         mainStack.setContentHuggingPriority(.required, for: .vertical)
-
         addSubview(mainStack)
 
         mainStack.snp.makeConstraints {
@@ -116,9 +117,12 @@ final class WeightWorkoutInputView: UIView {
     }
 
     private func updateTableViewHeight() {
-        tableView.layoutIfNeeded()
-        let contentHeight = tableView.contentSize.height
-        tableViewHeightConstraint?.update(offset: contentHeight)
+        DispatchQueue.main.async {
+            self.tableView.layoutIfNeeded()
+            let contentHeight = self.tableView.contentSize.height
+            self.tableViewHeightConstraint?.update(offset: contentHeight)
+            self.superview?.layoutIfNeeded()
+        }
     }
 
     @objc private func addSet() {
@@ -236,6 +240,28 @@ final class WeightWorkoutInputView: UIView {
         if !title.contains("|") {
             titleLabel.text = title
         }
+    }
+    
+    // 터치 애니메이션 추가
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        animate(scale: 0.95)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        animate(scale: 1.0)
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        animate(scale: 1.0)
+    }
+
+    private func animate(scale: CGFloat) {
+        UIView.animate(withDuration: 0.15, delay: 0, options: [.curveEaseOut], animations: {
+            self.transform = CGAffineTransform(scaleX: scale, y: scale)
+        }, completion: nil)
     }
 }
 
