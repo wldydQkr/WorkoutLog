@@ -269,7 +269,16 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         }
 
         emptyLabel.isHidden = true
-        for (exerciseName, sets) in grouped {
+        let sortedGrouped = grouped
+            .mapValues { $0.sorted { $0.date < $1.date } }
+            .sorted {
+                guard let lhsMin = $0.value.min(by: { $0.id.timestamp < $1.id.timestamp }),
+                      let rhsMin = $1.value.min(by: { $0.id.timestamp < $1.id.timestamp }) else {
+                    return false
+                }
+                return lhsMin.id.timestamp < rhsMin.id.timestamp
+            }
+        for (exerciseName, sets) in sortedGrouped {
             let workoutView = WeightWorkoutInputView()
             let workout = WeightWorkout(exerciseName: exerciseName, sets: sets.map {
                 WeightWorkout.SetInfo(weight: $0.weight, reps: $0.repetitions)
