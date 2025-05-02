@@ -199,6 +199,12 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         
         let hasWorkoutViews = contentStack.arrangedSubviews.contains(where: { $0 is WeightWorkoutInputView })
         emptyLabel.isHidden = hasWorkoutViews
+
+        // Scroll to bottom after adding input views, without animation
+        DispatchQueue.main.async {
+            let bottomOffset = CGPoint(x: 0, y: self.scrollView.contentSize.height - self.scrollView.bounds.size.height + self.scrollView.contentInset.bottom)
+            self.scrollView.setContentOffset(bottomOffset, animated: false)
+        }
     }
 
     // 기존 제스처 핸들러는 더 이상 사용하지 않음
@@ -269,15 +275,13 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         }
 
         emptyLabel.isHidden = true
-        let sortedGrouped = grouped
-            .mapValues { $0.sorted { $0.date < $1.date } }
-            .sorted {
-                guard let lhsMin = $0.value.min(by: { $0.id.timestamp < $1.id.timestamp }),
-                      let rhsMin = $1.value.min(by: { $0.id.timestamp < $1.id.timestamp }) else {
-                    return false
-                }
-                return lhsMin.id.timestamp < rhsMin.id.timestamp
+        let sortedGrouped = grouped.sorted {
+            guard let lhsDate = $0.value.sorted(by: { $0.date < $1.date }).first?.date,
+                  let rhsDate = $1.value.sorted(by: { $0.date < $1.date }).first?.date else {
+                return false
             }
+            return lhsDate < rhsDate
+        }
         for (exerciseName, sets) in sortedGrouped {
             let workoutView = WeightWorkoutInputView()
             let workout = WeightWorkout(exerciseName: exerciseName, sets: sets.map {
@@ -287,6 +291,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
             workoutView.addTarget(self, action: #selector(handleInputViewTapped(_:)), for: .touchUpInside)
             contentStack.addArrangedSubview(workoutView)
         }
+
         
         calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: date)], animated: true)
         

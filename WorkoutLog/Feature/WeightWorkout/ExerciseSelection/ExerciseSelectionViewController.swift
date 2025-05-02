@@ -156,11 +156,22 @@ class ExerciseSelectionViewController: UIViewController {
 
         try? realm.write {
             for name in newExercises {
+                let now = Date()
+                var finalDate = selectedDate
+                if let combined = calendar.date(
+                    bySettingHour: calendar.component(.hour, from: now),
+                    minute: calendar.component(.minute, from: now),
+                    second: calendar.component(.second, from: now),
+                    of: selectedDate
+                ) {
+                    finalDate = combined
+                }
+
                 let workout = WorkoutSetObject()
                 workout.exerciseName = name
                 workout.weight = 0
                 workout.repetitions = 0
-                workout.date = selectedDate
+                workout.date = finalDate
                 realm.add(workout)
             }
         }
