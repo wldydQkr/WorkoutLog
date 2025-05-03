@@ -21,10 +21,14 @@ final class WorkoutCalendarSummaryViewModel {
         if workouts.isEmpty {
             return ("해당 날짜에 기록된 운동이 없습니다.", "")
         } else {
-            let totalVolume = workouts.reduce(0.0) { $0 + ($1.weight * Double($1.repetitions)) }
+            let totalVolume = workouts.reduce(0.0) { (result: Double, workout: WorkoutSetObject) in
+                result + (workout.weight * Double(workout.repetitions))
+            }
             let summaryText = "운동 기록 수: \(workouts.count)\n총 볼륨: \(Int(totalVolume))kg"
             let exerciseNames = Set(workouts.map { $0.exerciseName })
-            let exerciseList = "운동 종목: " + exerciseNames.joined(separator: ", ")
+            let allExercises = realm.objects(ExerciseObject.self).filter("name IN %@", Array(exerciseNames))
+            let categories = Set(allExercises.map { $0.category })
+            let exerciseList = "운동 부위: " + categories.joined(separator: ", ")
             return (summaryText, exerciseList)
         }
     }

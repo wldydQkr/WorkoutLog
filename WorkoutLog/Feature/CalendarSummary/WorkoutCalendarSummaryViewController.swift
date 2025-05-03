@@ -99,7 +99,18 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
             $0.spacing = 8
         }
 
-        contentStack.addArrangedSubview(labelStack)
+        let labelContainer = UIView().then {
+            $0.backgroundColor = .secondarySystemBackground
+            $0.layer.cornerRadius = 12
+            $0.clipsToBounds = true
+        }
+
+        labelContainer.addSubview(labelStack)
+        labelStack.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(16)
+        }
+
+        contentStack.addArrangedSubview(labelContainer)
     }
 
     private func updateSummary(for date: Date) {
