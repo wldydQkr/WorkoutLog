@@ -68,49 +68,76 @@ final class WorkoutCalendarSummaryViewController: UIViewController {
     }
 
     private func setupUI() {
+        // Add scrollView to view
+        view.addSubview(scrollView)
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.showsVerticalScrollIndicator = false
-        view.addSubview(scrollView)
 
         scrollView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.bottom.equalToSuperview()
+            $0.edges.equalTo(view.safeAreaLayoutGuide)
         }
 
+        // Add contentStack to scrollView
         scrollView.addSubview(contentStack)
         contentStack.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.width.equalTo(scrollView.snp.width)
+            $0.top.bottom.equalTo(scrollView.contentLayoutGuide)
+            $0.leading.trailing.equalTo(scrollView.contentLayoutGuide)
+            $0.width.equalTo(scrollView.frameLayoutGuide)
         }
 
-        contentStack.addArrangedSubview(calendarView)
+        // Create and add calendarContainer to contentStack
+        let calendarContainer = UIView()
+        contentStack.addArrangedSubview(calendarContainer)
         
+        // Now that calendarContainer is in the view hierarchy, add calendarView to it
+        calendarContainer.addSubview(calendarView)
         calendarView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        calendarContainer.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
             $0.height.equalTo(UIScreen.main.bounds.width * 1.15)
         }
 
-        let spacer = UIView()
-        spacer.snp.makeConstraints { $0.height.equalTo(20) }
-        contentStack.addArrangedSubview(spacer)
+        // Add spacer
+//        let spacer = UIView()
+//        contentStack.addArrangedSubview(spacer)
+//        spacer.snp.makeConstraints {
+//            $0.height.equalTo(20)
+//        }
 
+        // Create labelStack
         let labelStack = UIStackView(arrangedSubviews: [summaryLabel, exerciseListLabel]).then {
             $0.axis = .vertical
             $0.spacing = 8
         }
 
+        // Create and add labelContainer
         let labelContainer = UIView().then {
             $0.backgroundColor = .secondarySystemBackground
             $0.layer.cornerRadius = 12
             $0.clipsToBounds = true
         }
-
+        
+        contentStack.addArrangedSubview(labelContainer)
+        
+        // Now that labelContainer is in the view hierarchy, add labelStack to it
         labelContainer.addSubview(labelStack)
         labelStack.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(16)
+            $0.top.bottom.leading.trailing.equalTo(labelContainer).inset(16)
         }
 
-        contentStack.addArrangedSubview(labelContainer)
+        labelContainer.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(16)
+        }
+
+        // Add bottom spacer
+        let bottomSpacer = UIView()
+        contentStack.addArrangedSubview(bottomSpacer)
+        bottomSpacer.snp.makeConstraints {
+            $0.height.equalTo(20)
+        }
     }
 
     private func updateSummary(for date: Date) {

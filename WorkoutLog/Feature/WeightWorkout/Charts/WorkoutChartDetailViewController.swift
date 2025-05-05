@@ -29,6 +29,11 @@ class WorkoutChartDetailViewController: UIViewController {
         $0.font = .boldSystemFont(ofSize: 15)
         $0.textAlignment = .center
     }
+    private let chartTitleLabel = UILabel().then {
+        $0.text = ""
+        $0.font = .systemFont(ofSize: 14, weight: .medium)
+        $0.textColor = .darkGray
+    }
 
     private let chartContainerView = UIView().then {
         $0.backgroundColor = UIColor(white: 0.95, alpha: 1)
@@ -36,7 +41,7 @@ class WorkoutChartDetailViewController: UIViewController {
         $0.layer.masksToBounds = true
     }
 
-    private let barChartView = BarChartView()
+    private let lineChartView = LineChartView()
 
     init(exerciseName: String) {
         self.exerciseName = exerciseName
@@ -60,13 +65,15 @@ class WorkoutChartDetailViewController: UIViewController {
         headerView.addSubview(backButton)
         headerView.addSubview(titleLabel)
         view.addSubview(chartContainerView)
-        chartContainerView.addSubview(barChartView)
+        chartContainerView.addSubview(chartTitleLabel)
+        chartContainerView.addSubview(lineChartView)
 
         let trimmedExerciseName = exerciseName
             .components(separatedBy: "|").last?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? exerciseName
         
         titleLabel.text = "\(trimmedExerciseName) 기록"
+        chartTitleLabel.text = "\(trimmedExerciseName) 날짜별 최고중량"
 
         headerView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
@@ -90,16 +97,16 @@ class WorkoutChartDetailViewController: UIViewController {
             $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
 
-        barChartView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(16)
+        chartTitleLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(16)
+            $0.centerX.equalToSuperview()
         }
-        
-        barChartView.pinchZoomEnabled = false
-        barChartView.doubleTapToZoomEnabled = false
-        barChartView.scaleXEnabled = false
-        barChartView.scaleYEnabled = false
-        barChartView.highlightPerTapEnabled = false
-        barChartView.highlightPerDragEnabled = false
+
+        lineChartView.snp.remakeConstraints {
+            $0.top.equalTo(chartTitleLabel.snp.bottom).offset(8)
+            $0.leading.trailing.equalToSuperview().inset(24) // 좌우 간격 조금 더 확보
+            $0.bottom.equalToSuperview().inset(16)
+        }
     }
 
     private func fetchWorkoutData() {
@@ -113,13 +120,18 @@ class WorkoutChartDetailViewController: UIViewController {
     }
 
     private func updateChartData() {
-        var entries: [BarChartDataEntry] = []
+        var entries: [ChartDataEntry] = []
         for (index, data) in chartData.enumerated() {
-            entries.append(BarChartDataEntry(x: Double(index), y: data.maxWeight))
+            entries.append(ChartDataEntry(x: Double(index), y: data.maxWeight))
         }
 
-        let dataSet = BarChartDataSet(entries: entries, label: "최고 중량 (kg)")
+        let dataSet = LineChartDataSet(entries: entries, label: "최고 중량 (kg)")
         dataSet.colors = [UIColor.orange]
+        dataSet.circleColors = [UIColor.orange]
+        dataSet.circleRadius = 4
+        dataSet.lineWidth = 2
+        dataSet.mode = .cubicBezier
+        dataSet.drawValuesEnabled = true
         dataSet.valueFont = .systemFont(ofSize: 12, weight: .medium)
         dataSet.valueFormatter = DefaultValueFormatter(block: { (value, _, _, _) -> String in
             let intValue = Int(value)
@@ -131,32 +143,38 @@ class WorkoutChartDetailViewController: UIViewController {
         })
         dataSet.highlightEnabled = false
 
-        let barData = BarChartData(dataSet: dataSet)
-        barData.barWidth = 0.7
-
-        barChartView.data = barData
+        let lineData = LineChartData(dataSet: dataSet)
+        lineChartView.data = lineData
 
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd"
 
-        barChartView.xAxis.centerAxisLabelsEnabled = false
-        barChartView.xAxis.granularity = 1
-        barChartView.xAxis.labelCount = chartData.count
-        barChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: chartData.map {
+        lineChartView.xAxis.centerAxisLabelsEnabled = false
+        lineChartView.xAxis.granularity = 1
+        lineChartView.xAxis.labelCount = chartData.count
+        lineChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: chartData.map {
             formatter.string(from: $0.date)
         })
-        barChartView.xAxis.labelPosition = .bottom
-        barChartView.xAxis.drawGridLinesEnabled = false
-        barChartView.xAxis.avoidFirstLastClippingEnabled = false
+        lineChartView.xAxis.labelPosition = .bottom
+        lineChartView.xAxis.drawGridLinesEnabled = false
+        lineChartView.xAxis.avoidFirstLastClippingEnabled = false
 
-        barChartView.rightAxis.enabled = false
-        barChartView.leftAxis.enabled = false
+        lineChartView.rightAxis.enabled = false
+        lineChartView.leftAxis.enabled = false
 
-        barChartView.legend.enabled = false
-        barChartView.drawGridBackgroundEnabled = false
-        barChartView.drawBordersEnabled = false
-        barChartView.animate(yAxisDuration: 0.5)
-        barChartView.fitBars = true
+        lineChartView.legend.enabled = false
+        lineChartView.drawGridBackgroundEnabled = false
+        lineChartView.drawBordersEnabled = false
+        lineChartView.animate(yAxisDuration: 0.5)
+
+        // 제스처 및 줌, 드래그 등 비활성화
+        lineChartView.scaleXEnabled = false
+        lineChartView.scaleYEnabled = false
+        lineChartView.pinchZoomEnabled = false
+        lineChartView.doubleTapToZoomEnabled = false
+        lineChartView.dragEnabled = false
+        lineChartView.highlightPerTapEnabled = false
+        lineChartView.highlightPerDragEnabled = false
     }
     
     @objc private func backTapped() {
