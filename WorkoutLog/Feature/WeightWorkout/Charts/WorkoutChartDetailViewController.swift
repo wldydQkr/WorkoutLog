@@ -104,8 +104,8 @@ class WorkoutChartDetailViewController: UIViewController {
 
         lineChartView.snp.remakeConstraints {
             $0.top.equalTo(chartTitleLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalToSuperview().inset(24) // 좌우 간격 조금 더 확보
             $0.bottom.equalToSuperview().inset(16)
+            $0.leading.trailing.equalToSuperview().inset(32) // 기존 48에서 32로 줄여 여백 확보
         }
     }
 
@@ -157,7 +157,9 @@ class WorkoutChartDetailViewController: UIViewController {
         })
         lineChartView.xAxis.labelPosition = .bottom
         lineChartView.xAxis.drawGridLinesEnabled = false
-        lineChartView.xAxis.avoidFirstLastClippingEnabled = false
+        lineChartView.xAxis.avoidFirstLastClippingEnabled = true
+        lineChartView.xAxis.spaceMin = 0.3
+        lineChartView.xAxis.spaceMax = 0.3
 
         lineChartView.rightAxis.enabled = false
         lineChartView.leftAxis.enabled = false
