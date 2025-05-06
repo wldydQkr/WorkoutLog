@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		BF8AE3954617081095A7204C /* Pods_WorkoutLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */; };
+		C06385AA2DC8E6C90015A3F2 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06385A92DC8E6BB0015A3F2 /* SettingViewController.swift */; };
+		C06385AC2DC8E6D10015A3F2 /* SettingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06385AB2DC8E6CD0015A3F2 /* SettingViewModel.swift */; };
 		C06AC81C2D9ED552005960FF /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC81B2D9ED54D005960FF /* HealthManager.swift */; };
 		C06AC81E2DA01349005960FF /* StepDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC81D2DA01340005960FF /* StepDetailViewController.swift */; };
 		C06AC8212DA0CD13005960FF /* StepViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06AC8202DA0CD07005960FF /* StepViewModel.swift */; };
@@ -49,6 +51,8 @@
 /* Begin PBXFileReference section */
 		1E442870D3627D10057D5624 /* Pods-WorkoutLog.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WorkoutLog.debug.xcconfig"; path = "Target Support Files/Pods-WorkoutLog/Pods-WorkoutLog.debug.xcconfig"; sourceTree = "<group>"; };
 		5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WorkoutLog.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C06385A92DC8E6BB0015A3F2 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
+		C06385AB2DC8E6CD0015A3F2 /* SettingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewModel.swift; sourceTree = "<group>"; };
 		C06AC8192D9ED396005960FF /* WorkoutLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WorkoutLog.entitlements; sourceTree = "<group>"; };
 		C06AC81B2D9ED54D005960FF /* HealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthManager.swift; sourceTree = "<group>"; };
 		C06AC81D2DA01340005960FF /* StepDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepDetailViewController.swift; sourceTree = "<group>"; };
@@ -118,6 +122,15 @@
 				5D855FC7B60A2E22A641F34F /* Pods_WorkoutLog.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C06385A82DC8E6B30015A3F2 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				C06385AB2DC8E6CD0015A3F2 /* SettingViewModel.swift */,
+				C06385A92DC8E6BB0015A3F2 /* SettingViewController.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		C06AC81A2D9ED536005960FF /* Manager */ = {
@@ -201,6 +214,7 @@
 		C0CD831C2D9ACF31002470D9 /* Feature */ = {
 			isa = PBXGroup;
 			children = (
+				C06385A82DC8E6B30015A3F2 /* Settings */,
 				C0DCEF192D9ADDB600E7395F /* Tab */,
 				C0F3CB612DAE8BCD00D3D6BF /* CalendarSummary */,
 				C0F594572DA551E80015EA47 /* WeightWorkout */,
@@ -436,6 +450,7 @@
 				C0CD83012D981DE4002470D9 /* SceneDelegate.swift in Sources */,
 				C0CD83192D982F35002470D9 /* ActivityCollectionViewCell.swift in Sources */,
 				C0DCEF1B2D9ADDC300E7395F /* TabBarController.swift in Sources */,
+				C06385AA2DC8E6C90015A3F2 /* SettingViewController.swift in Sources */,
 				C0F3CB662DB2A3A100D3D6BF /* UIViewController+.swift in Sources */,
 				C0CD83022D981DE4002470D9 /* ViewController.swift in Sources */,
 				C0CD83112D982ED3002470D9 /* ActivityViewModel.swift in Sources */,
@@ -445,6 +460,7 @@
 				C0F3CB6B2DB4ADF300D3D6BF /* WorkoutCell.swift in Sources */,
 				C06AC81E2DA01349005960FF /* StepDetailViewController.swift in Sources */,
 				C0CD830C2D981F35002470D9 /* MemoDeatilViewController.swift in Sources */,
+				C06385AC2DC8E6D10015A3F2 /* SettingViewModel.swift in Sources */,
 				C0F3CB602DA6930900D3D6BF /* ExerciseSelectionViewController.swift in Sources */,
 				C06AC8242DA0F319005960FF /* RoutineCollectionViewCell.swift in Sources */,
 				C0F5945F2DA55A2F0015EA47 /* WeightWorkoutInputView.swift in Sources */,

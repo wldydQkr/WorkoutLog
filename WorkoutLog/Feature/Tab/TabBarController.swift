@@ -26,7 +26,7 @@ final class CustomTabBarController: UITabBarController {
         super.viewDidLoad()
         navigationController?.navigationBar.isHidden = true
         setupTabs()
-        setupFloatingButton()
+//        setupFloatingButton()
     }
 
     private func setupTabs() {
@@ -42,13 +42,32 @@ final class CustomTabBarController: UITabBarController {
         let locationVC = UINavigationController(rootViewController: WorkoutCalendarSummaryViewController())
         locationVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "calendar"), tag: 3)
 
-        let searchVC = UINavigationController(rootViewController: WorkoutChartDetailViewController(exerciseName: "벤치 프레스"))
+        let searchVC = UINavigationController(rootViewController: SettingViewController())
         searchVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(systemName: "person.fill"), tag: 4)
 
-        viewControllers = [homeVC, activityVC, placeholderVC, locationVC, searchVC]
+        viewControllers = [homeVC, activityVC, locationVC, searchVC]
         tabBar.tintColor = .darkGray
         tabBar.unselectedItemTintColor = .lightGray
         tabBar.backgroundColor = .clear
+    }
+
+    // 탭바 아이템 선택 시 아이콘에 애니메이션 적용
+    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        guard let index = tabBar.items?.firstIndex(of: item),
+              let tabBarButton = tabBar.subviews.filter({ $0 is UIControl })[safe: index] else { return }
+
+        for subview in tabBarButton.subviews {
+            if let imageView = subview as? UIImageView {
+                UIView.animate(withDuration: 0.1, animations: {
+                    imageView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+                }) { _ in
+                    UIView.animate(withDuration: 0.1) {
+                        imageView.transform = CGAffineTransform.identity
+                    }
+                }
+                break
+            }
+        }
     }
 
     private func setupFloatingButton() {
@@ -67,6 +86,13 @@ final class CustomTabBarController: UITabBarController {
 
     @objc private func floatingButtonTapped() {
         print("플로팅 버튼 클릭됨")
+    }
+}
+
+// Safely access array/collection elements
+extension Collection {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
 

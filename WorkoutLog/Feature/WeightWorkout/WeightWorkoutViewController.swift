@@ -21,6 +21,9 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         $0.textAlignment = .center
         $0.numberOfLines = 0
         $0.isHidden = true
+        // If you want to respect layout margins in the label, uncomment below:
+        // $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        // $0.preservesSuperviewLayoutMargins = true
     }
     private let titleLabel = UILabel().then {
         $0.font = .boldSystemFont(ofSize: 24)
@@ -69,10 +72,10 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         setupUI()
         setupCalendar()
         updateSelectedDate(selectedDate)
-        // Keyboard notification observers 등록
+        // 키보드 알림 옵저버 등록
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        // 화면 터치 시 키보드 내리기 위한 제스처 변수
+        // 화면 터치 시 키보드를 내리기 위한 제스처
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
@@ -82,7 +85,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         let dateSelection = UICalendarSelectionSingleDate(delegate: self)
         calendarView.selectionBehavior = dateSelection
         
-        // 오늘 날짜 선택 - Date를 DateComponents로 변환
+        // 오늘 날짜를 선택 - Date를 DateComponents로 변환
         let calendar = Calendar.current
         let dateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
         (calendarView.selectionBehavior as? UICalendarSelectionSingleDate)?.setSelected(dateComponents, animated: false)
@@ -111,6 +114,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
 
         contentStack.addArrangedSubview(calendarView)
         contentStack.addArrangedSubview(emptyLabel)
+        contentStack.setCustomSpacing(-20, after: calendarView)
         
         titleLabel.text = viewModel.currentDateString
 
@@ -172,7 +176,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         let existingExerciseNames = Set(existingWorkouts.map { $0.exerciseName })
 
         for exercise in uniqueExercises {
-            // 동일 날짜에 같은 운동이 이미 존재하면 추가하지 않음
+            // 동일한 날짜에 같은 운동이 존재하면 추가하지 않음
             if contentStack.arrangedSubviews.contains(where: {
                 guard let inputView = $0 as? WeightWorkoutInputView else { return false }
                 return inputView.exerciseName == exercise
@@ -185,20 +189,26 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
                 sets: [WeightWorkout.SetInfo(weight: 0, reps: 0)],
                 date: selectedDate
             )
-            // addInputViews 메소드 수정
+            // addInputViews 메서드 수정
             let inputView = WeightWorkoutInputView()
             inputView.configure(with: workout, date: selectedDate)
             // 제스처 등록 부분 제거, 대신 UIControl 이벤트 연결
             inputView.addTarget(self, action: #selector(handleInputViewTapped(_:)), for: .touchUpInside)
             inputView.isUserInteractionEnabled = true
             contentStack.addArrangedSubview(inputView)
-//            emptyLabel.isHidden = true
+//            emptyLabel을 숨김
         }
         
         calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: selectedDate)], animated: true)
         
         let hasWorkoutViews = contentStack.arrangedSubviews.contains(where: { $0 is WeightWorkoutInputView })
         emptyLabel.isHidden = hasWorkoutViews
+
+        // 운동 입력 뷰 추가 후 스크롤을 맨 아래로 이동 (애니메이션 없음)
+        DispatchQueue.main.async {
+            let bottomOffset = CGPoint(x: 0, y: self.scrollView.contentSize.height - self.scrollView.bounds.size.height + self.scrollView.contentInset.bottom)
+            self.scrollView.setContentOffset(bottomOffset, animated: false)
+        }
     }
 
     // 기존 제스처 핸들러는 더 이상 사용하지 않음
@@ -233,17 +243,17 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         formatter.dateFormat = "yyyy년 M월 d일 (E)"
         titleLabel.text = formatter.string(from: date)
 
-        // 날짜 변경 시 기존 운동 뷰 제거 (상단 뷰 제외)
+        // 날짜가 변경되면 기존 운동 뷰 제거 (상단 뷰 제외)
         let preservedViews = contentStack.arrangedSubviews.prefix(2)
         contentStack.arrangedSubviews.dropFirst(2).forEach { view in
             contentStack.removeArrangedSubview(view)
             view.removeFromSuperview()
         }
 
-        // Retrieve workout groups from view model
+        // 뷰모델에서 운동 그룹 가져오기
         let grouped = viewModel.workoutGroups(for: date)
 
-        // If no workouts exist, remove all WeightWorkoutInputView and return
+        // 운동이 없으면 모든 WeightWorkoutInputView를 제거하고 리턴
         if grouped.isEmpty {
             contentStack.arrangedSubviews.forEach { view in
                 if view is WeightWorkoutInputView {
@@ -257,7 +267,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
             emptyLabel.isHidden = true
         }
 
-        // 현재 날짜의 운동 이름들만 유지하고 나머지 InputView는 제거
+        // 현재 날짜의 운동 이름만 유지하고 나머지 InputView 제거
         let validExerciseNames = Set(grouped.keys)
         contentStack.arrangedSubviews.forEach { view in
             if let inputView = view as? WeightWorkoutInputView,
@@ -269,7 +279,14 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
         }
 
         emptyLabel.isHidden = true
-        for (exerciseName, sets) in grouped {
+        let sortedGrouped = grouped.sorted {
+            guard let lhsDate = $0.value.sorted(by: { $0.date < $1.date }).first?.date,
+                  let rhsDate = $1.value.sorted(by: { $0.date < $1.date }).first?.date else {
+                return false
+            }
+            return lhsDate < rhsDate
+        }
+        for (exerciseName, sets) in sortedGrouped {
             let workoutView = WeightWorkoutInputView()
             let workout = WeightWorkout(exerciseName: exerciseName, sets: sets.map {
                 WeightWorkout.SetInfo(weight: $0.weight, reps: $0.repetitions)
@@ -278,6 +295,7 @@ class WeightWorkoutViewController: UIViewController, UIScrollViewDelegate {
             workoutView.addTarget(self, action: #selector(handleInputViewTapped(_:)), for: .touchUpInside)
             contentStack.addArrangedSubview(workoutView)
         }
+
         
         calendarView.reloadDecorations(forDateComponents: [Calendar.current.dateComponents([.year, .month, .day], from: date)], animated: true)
         
@@ -373,7 +391,7 @@ struct WeightWorkoutViewController_Preview: PreviewProvider {
 }
 #endif
 
-// MARK: - Keyboard Handling
+// MARK: - 키보드 처리
 private extension WeightWorkoutViewController {
     @objc func keyboardWillShow(notification: Notification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
